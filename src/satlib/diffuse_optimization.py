@@ -1,6 +1,6 @@
 import numpy as np
 
-def munoz2024(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo):
+def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo):
     # not sure how surface_azimuth is supposed to be known.
     # assume north-south axis and choose east/west based on sun position?
     surface_azimuth = np.where(solar_azimuth < 180, 90, 270)
