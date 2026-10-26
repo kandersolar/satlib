@@ -27,3 +27,5 @@ Other:
    :toctree: reference
 
    satlib.smear.smear
+   satlib.discretization.discretize_time
+   satlib.discretization.discretize_angle
