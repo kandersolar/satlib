@@ -12,11 +12,6 @@ build:
    os: ubuntu-lts-latest
    tools:
      python: "3.13"
-   jobs:
-     # fetch the full history so that setuptools_scm can determine the
-     # correct version string for long PRs with many commits
-     post_checkout:
-       - git fetch --unshallow
 
 python:
    install:
