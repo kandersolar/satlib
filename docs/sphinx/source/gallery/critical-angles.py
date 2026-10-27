@@ -42,5 +42,9 @@ timings = (
 # %%
 
 theta.plot()
+
+for angle in critical_angles:
+    plt.axhline(angle, c='k', ls=':')
+
 for timing in timings:
     plt.axvline(timing, c='k', ls=':')
