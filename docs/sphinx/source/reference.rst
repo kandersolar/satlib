@@ -53,3 +53,11 @@ Limits:
    :toctree: reference
 
    satlib.smear.smear
+
+
+Geometry:
+
+.. autosummary::
+   :toctree: reference
+
+   satlib.geometry.critical_angles

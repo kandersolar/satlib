@@ -38,7 +38,7 @@ def twist_sag(theta, max_twist, module, n_modules):
        Effect of Torque Tube Twisting in Single-Axis Tracking PV
        Arrays," 2024 IEEE 52nd Photovoltaic Specialist Conference
        (PVSC). IEEE, pp. 1371–1377, Jun. 09, 2024.
-       :doi:`10.1109/pvsc57443.2024.10749340`. 
+       :doi:`10.1109/pvsc57443.2024.10749340`.
     """
     theta_end = theta + max_twist * sind(theta)
     return theta + (theta_end - theta) * (2 * module / (n_modules - 1) - 1)
