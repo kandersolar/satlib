@@ -28,33 +28,62 @@ def _reverse(x):
     return pd.Series(x.values[::-1], index=x.index)
 
 
-def smear(x, limit, how):
-    if how == "catch-up":
-        return _smear(x, limit)
-    if how == "anticipate":
-        return _reverse(_smear(_reverse(x), limit))
+def clip_speed(theta, limit, how):
+    """
+    Apply rotation speed limits to a tracker position time
+    series.
+
+    Where the input time series moves faster than the specified
+    limit, the returned time series:
+
+    * "lead": leads the input time series
+    * "lag": lags the input time series
+    * "steeper": leads and lags such that it is at steeper tilt
+      than the input
+    * "shallower": leads and lags such that it is at shallower
+      tilt than the input
+
+    Parameters
+    ----------
+    theta : numeric
+        The input time series. [degrees]
+    limit : float
+        Maximum rotation rate. [degrees per minute]
+    how : {"lead", "lag", "steeper", "shallower"}
+        Which method to apply.
+
+    Returns
+    -------
+    limited : numeric
+        The time series, subject to the specified rotaiton limit.
+        [degrees]
+    """
+    if how == "lag":
+        return _smear(theta, limit)
+    if how == "lead":
+        return _reverse(_smear(_reverse(theta), limit))
     if how == "steeper":
-        x1 = x[x < 0]
-        x2 = x[x > 0]
+        x1 = theta[theta < 0]
+        x2 = theta[theta > 0]
         y1 = _smear(x1, limit)
         y2 = _reverse(_smear(_reverse(x2), limit))
-        out = x.copy()
-        out[x < 0] = y1
-        out[x > 0] = y2
+        out = theta.copy()
+        out[theta < 0] = y1
+        out[theta > 0] = y2
         return out
     if how == "shallower":
-        x1 = x[x < 0]
-        x2 = x[x > 0]
+        x1 = theta[theta < 0]
+        x2 = theta[theta > 0]
         y1 = _reverse(_smear(_reverse(x1), limit))
         y2 = _smear(x2, limit)
-        out = x.copy()
-        out[x < 0] = y1
-        out[x > 0] = y2
+        out = theta.copy()
+        out[theta < 0] = y1
+        out[theta > 0] = y2
         return out
     raise
 
 
-def clip(theta, limit):
+def clip_position(theta, limit):
     """
     Apply rotation limits to a tracker position time series.
 
@@ -75,4 +104,3 @@ def clip(theta, limit):
     if np.isscalar(limit):
         limit = (-limit, limit)
     return np.clip(theta, limit[0], limit[1])
- 
