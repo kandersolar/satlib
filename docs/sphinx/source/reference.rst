@@ -1,7 +1,8 @@
 Function reference
 ==================
 
-Tracking:
+Tracking
+--------
 
 .. autosummary::
    :toctree: reference
@@ -9,7 +10,8 @@ Tracking:
    satlib.tracking.astronomical
 
 
-Backtracking:
+Backtracking
+------------
 
 .. autosummary::
    :toctree: reference
@@ -21,7 +23,8 @@ Backtracking:
    satlib.backtracking.lp_backtracking.get_tracker_rotations
 
 
-Diffuse tracking:
+Diffuse tracking
+----------------
 
 .. autosummary::
    :toctree: reference
@@ -29,7 +32,8 @@ Diffuse tracking:
    satlib.diffuse_optimization.munoz2024_analytical
 
 
-Discretization:
+Discretization
+--------------
 
 .. autosummary::
    :toctree: reference
@@ -38,7 +42,8 @@ Discretization:
    satlib.discretization.discretize_angle
 
 
-Twisting:
+Twisting
+--------
 
 .. autosummary::
    :toctree: reference
@@ -47,7 +52,8 @@ Twisting:
    satlib.twist.twist_sag
 
 
-Limits:
+Limits
+------
 
 .. autosummary::
    :toctree: reference
@@ -56,7 +62,8 @@ Limits:
    satlib.limits.clip_speed
 
 
-Geometry:
+Geometry
+--------
 
 .. autosummary::
    :toctree: reference
