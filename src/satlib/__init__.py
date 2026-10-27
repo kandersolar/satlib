@@ -11,5 +11,6 @@ from satlib import (
     discretization,
     smear,
     tracking,
+    twist,
     _trigd,
 )

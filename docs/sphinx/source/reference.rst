@@ -29,11 +29,27 @@ Diffuse tracking:
    satlib.diffuse_optimization.munoz2024_analytical
 
 
-Other:
+Discretization:
+
+.. autosummary::
+   :toctree: reference
+
+   satlib.discretization.discretize_time
+   satlib.discretization.discretize_angle
+
+
+Twisting:
+
+.. autosummary::
+   :toctree: reference
+
+   satlib.twist.twist_lag
+   satlib.twist.twist_sag
+
+
+Limits:
 
 .. autosummary::
    :toctree: reference
 
    satlib.smear.smear
-   satlib.discretization.discretize_time
-   satlib.discretization.discretize_angle
