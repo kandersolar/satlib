@@ -9,6 +9,7 @@ from satlib import (
     backtracking,
     diffuse_optimization,
     discretization,
+    geometry,
     smear,
     tracking,
     twist,
