@@ -65,8 +65,8 @@ def critical_angles(gcr, cross_axis_tilt=0):
        IEEE J. Photovoltaics, vol. 16, no. 2, pp. 291–298,
        Mar. 2026, :doi:`10.1109/jphotov.2025.3645781`. 
     """
-    theta_min = cross_axis_tilt + acosd(gcr * cosd(cross_axis_tilt))
-    theta_max = cross_axis_tilt - acosd(gcr * cosd(cross_axis_tilt))
+    theta_max = cross_axis_tilt + acosd(gcr * cosd(cross_axis_tilt))
+    theta_min = cross_axis_tilt - acosd(gcr * cosd(cross_axis_tilt))
     return theta_min, theta_max
 
 
