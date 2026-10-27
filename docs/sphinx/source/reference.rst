@@ -1,15 +1,22 @@
 Function reference
 ==================
 
-Tracking:
+Tracking
+--------
+
+Functions for determining the optimal angle of a tracker.
 
 .. autosummary::
    :toctree: reference
 
    satlib.tracking.astronomical
+   satlib.diffuse_optimization.munoz2024_analytical
 
 
-Backtracking:
+Backtracking
+------------
+
+Functions for avoiding and managing row-to-row shade.
 
 .. autosummary::
    :toctree: reference
@@ -21,15 +28,10 @@ Backtracking:
    satlib.backtracking.lp_backtracking.get_tracker_rotations
 
 
-Diffuse tracking:
+Discretization
+--------------
 
-.. autosummary::
-   :toctree: reference
-
-   satlib.diffuse_optimization.munoz2024_analytical
-
-
-Discretization:
+Functions for modeling discontinuous tracker movement.
 
 .. autosummary::
    :toctree: reference
@@ -38,7 +40,10 @@ Discretization:
    satlib.discretization.discretize_angle
 
 
-Twisting:
+Twisting
+--------
+
+Functions for modeling twisting along the length of a torque tube.
 
 .. autosummary::
    :toctree: reference
@@ -47,7 +52,10 @@ Twisting:
    satlib.twist.twist_sag
 
 
-Limits:
+Limits
+------
+
+Functions for applying limits to tracker position and speed.
 
 .. autosummary::
    :toctree: reference
@@ -56,7 +64,10 @@ Limits:
    satlib.limits.clip_speed
 
 
-Geometry:
+Geometry
+--------
+
+Functions for calculating geometric quantities for trackers.
 
 .. autosummary::
    :toctree: reference
