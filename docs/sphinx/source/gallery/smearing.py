@@ -18,8 +18,11 @@ times = pd.date_range("2026-12-21 7:30:00", "2026-12-21 16:30:00", freq="1min", 
 sp = pvlib.solarposition.get_solarposition(times, 45, 0)
 sp = sp.loc[sp["apparent_elevation"] > 0, :]
 
-tr = pvlib.tracking.singleaxis(sp.apparent_zenith, sp.azimuth, axis_azimuth=180, gcr=0.4, backtrack=True)
-theta = tr['tracker_theta']
+tt = satlib.tracking.astronomical(sp.apparent_zenith, sp.azimuth, axis_tilt=0, axis_azimuth=180)
+bt = satlib.backtracking.simple.backtrack(tt, gcr=0.4)
+
+theta = np.where(np.isnan(bt), tt, bt)
+theta = pd.Series(theta, index=sp.index)
 
 # %%
 
