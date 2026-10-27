@@ -52,7 +52,8 @@ Limits:
 .. autosummary::
    :toctree: reference
 
-   satlib.smear.smear
+   satlib.limits.clip
+   satlib.limits.smear
 
 
 Geometry:

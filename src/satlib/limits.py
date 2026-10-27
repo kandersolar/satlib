@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 def _smear(x, limit):
@@ -22,8 +23,10 @@ def _smear(x, limit):
     x.iloc[1:] = x.iloc[0] + diff.cumsum().iloc[1:]
     return x
 
+
 def _reverse(x):
     return pd.Series(x.values[::-1], index=x.index)
+
 
 def smear(x, limit, how):
     if how == "catch-up":
@@ -49,3 +52,27 @@ def smear(x, limit, how):
         out[x > 0] = y2
         return out
     raise
+
+
+def clip(theta, limit):
+    """
+    Apply rotation limits to a tracker position time series.
+
+    Parameters
+    ----------
+    theta : numeric
+        The tracker position time series. [degrees]
+    limit : float or tuple of numeric
+        The max/min position limit.  If a scalar is passed,
+        it is used symmetrically for min and max limits.
+        Otherwise, a tuple of (min, max) limits must be passed.
+
+    Returns
+    -------
+    clipped : numeric
+        The position time series with limits applied.
+    """
+    if np.isscalar(limit):
+        limit = (-limit, limit)
+    return np.clip(theta, limit[0], limit[1])
+ 
