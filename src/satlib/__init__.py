@@ -10,7 +10,7 @@ from satlib import (
     diffuse_optimization,
     discretization,
     geometry,
-    smear,
+    limits,
     tracking,
     twist,
     _trigd,
