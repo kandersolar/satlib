@@ -8,5 +8,8 @@ except PackageNotFoundError:
 from satlib import (
     backtracking,
     diffuse_optimization,
-    smear
+    discretization,
+    smear,
+    tracking,
+    _trigd,
 )

@@ -1,6 +1,14 @@
 Function reference
 ==================
 
+Tracking:
+
+.. autosummary::
+   :toctree: reference
+
+   satlib.tracking.astronomical
+
+
 Backtracking:
 
 .. autosummary::

@@ -1,5 +1,5 @@
 import numpy as np
-from pvlib.tools import cosd, acosd
+from satlib._trigd import cosd, acosd
 
 
 def backtrack(psza, gcr, cross_axis_tilt=0):
