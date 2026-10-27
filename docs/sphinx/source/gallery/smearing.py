@@ -27,8 +27,8 @@ theta = pd.Series(theta, index=sp.index)
 # %%
 
 theta.plot(c='k', label='baseline')
-for how in ["catch-up", "anticipate"]:
-    smeared = satlib.smear.smear(theta, 1, how=how)
+for how in ["lead", "lag"]:
+    smeared = satlib.limits.clip_speed(theta, 1, how=how)
     smeared.plot(label=how)
     plt.legend()
 
@@ -36,7 +36,7 @@ for how in ["catch-up", "anticipate"]:
 
 theta.plot(c='k', label='baseline')
 for how in ["steeper", "shallower"]:
-    smeared = satlib.smear.smear(theta, 1, how=how)
+    smeared = satlib.limits.clip_speed(theta, 1, how=how)
     smeared.plot(label=how)
     plt.legend()
 
