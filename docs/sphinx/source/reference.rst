@@ -60,4 +60,10 @@ Geometry:
 .. autosummary::
    :toctree: reference
 
+   satlib.geometry.aoi
+   satlib.geometry.surface_orientation
    satlib.geometry.critical_angles
+   satlib.geometry.axis_tilt
+   satlib.geometry.cross_axis_tilt
+   satlib.geometry.projected_solar_zenith_angle
+

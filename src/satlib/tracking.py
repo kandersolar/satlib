@@ -1,5 +1,4 @@
-import numpy as np
-from satlib._trigd import sind, cosd, atan2d
+import satlib
 
 
 def astronomical(solar_zenith, solar_azimuth, axis_tilt, axis_azimuth):
@@ -33,26 +32,5 @@ def astronomical(solar_zenith, solar_azimuth, axis_tilt, axis_azimuth):
        Single-Axis Trackers", Technical Report NREL/TP-5K00-76626, July 2020.
        :doi:`10.2172/1660126`
     """
-    # Since elevation = 90 - zenith, sin(90-x) = cos(x) & cos(90-x) = sin(x):
-    # Notation from [1], modified to use zenith instead of elevation
-    # cos(elevation) = sin(zenith) and sin(elevation) = cos(zenith)
-    # Avoid recalculating these values
-    sind_solar_zenith = sind(solar_zenith)
-    cosd_axis_azimuth = cosd(axis_azimuth)
-    sind_axis_azimuth = sind(axis_azimuth)
-    sind_axis_tilt = sind(axis_tilt)
-
-    # Sun's x, y, z coords
-    sx = sind_solar_zenith * sind(solar_azimuth)
-    sy = sind_solar_zenith * cosd(solar_azimuth)
-    sz = cosd(solar_zenith)
-    # Eq. (4); sx', sz' values from sun coordinates projected onto surface
-    sx_prime = sx * cosd_axis_azimuth - sy * sind_axis_azimuth
-    sz_prime = (
-        sx * sind_axis_azimuth * sind_axis_tilt
-        + sy * sind_axis_tilt * cosd_axis_azimuth
-        + sz * cosd(axis_tilt)
-    )
-    # Eq. (5); angle between sun's beam and surface
-    theta_T = atan2d(sx_prime, sz_prime)
-    return theta_T
+    return satlib.geometry.projected_solar_zenith_angle(solar_zenith, solar_azimuth,
+                                                        axis_tilt, axis_azimuth)
