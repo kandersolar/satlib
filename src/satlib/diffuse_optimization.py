@@ -1,6 +1,6 @@
 import numpy as np
 import pvlib
-from src import satlib
+import satlib
 
 def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis_azimuth=180):
     """
