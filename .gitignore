@@ -1,3 +1,8 @@
+docs/sphinx/source/reference
+docs/sphinx/source/examples
+docs/sphinx/source/sg_execution_times.rst
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

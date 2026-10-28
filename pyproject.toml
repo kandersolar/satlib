@@ -1,12 +1,23 @@
+[build-system]
+requires = ["setuptools>=80", "setuptools_scm[simple]>=9.2"]
+build-backend = "setuptools.build_meta"
+
+
 [project]
 name = "satlib"
-version = "0.0.1"
+dynamic = ["version"]
 authors = [
-  { name="Kevin Anderson" },
+  { name="Kevin Anderson, Mandy Lewis" },
 ]
 description = "Simulating single-axis solar trackers."
 readme = "README.md"
 requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pandas",
+    "pvlib",
+    "scipy",
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
@@ -14,6 +25,25 @@ classifiers = [
 license = "BSD-3-Clause"
 license-files = ["LICEN[CS]E*"]
 
+
 [project.urls]
 Homepage = "https://github.com/kandersolar/satlib"
 Issues = "https://github.com/kandersolar/satlib/issues"
+
+
+[project.optional-dependencies]
+doc = [
+     "sphinx",
+     "sphinx-gallery",
+     "pydata-sphinx-theme",
+     "matplotlib",
+]
+
+
+[tool.setuptools]
+# do not include all non-python files in the bdist by default, but select them manually
+# https://setuptools.pypa.io/en/latest/userguide/datafiles.html#interplay-between-these-keywords (2024-10-22)
+include-package-data = false  # true by default
+
+[tool.setuptools_scm]
+

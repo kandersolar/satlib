@@ -8,7 +8,7 @@ Notes:
 import numpy as np
 import scipy
 
-from pvlib.tools import cosd, sind, acosd, atand
+from satlib._trigd import cosd, sind, acosd, atand
 
 
 def _get_feasibility_mask(psza, x, y):
