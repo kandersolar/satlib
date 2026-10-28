@@ -1,5 +1,6 @@
 import numpy as np
 import pvlib
+from src import satlib
 
 def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis_azimuth=180):
 # CENER "analytical model"
@@ -7,14 +8,7 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis
 # “Evaluation of Horizontal Single-Axis Solar Tracker Algorithms in Terms of Energy Production 
 # and Operational Performance,” Solar RRL, vol. 8, no. 1, p. 2300507, 2024, doi: 10.1002/solr.202300507.
 
-    # get surface azimuth from solar azimuth and axis azimuth: 
-    # if solar azimuth is between axis azimuth - 180 and axis azimuth, surface azimuth = axis azimuth - 90
-    # if solar azimuth is between axis azimuth and axis azimuth + 180, surface azimuth = axis azimuth + 90
-    relative = (solar_azimuth - axis_azimuth) % 360 # get the solar azimuth angle with respect to axis aximuth
-
-    #if the solar azimuth is >180 degrees past the axis azimuth: surface azimuth is -90 degrees from axis azimuth
-    #if the solar azimuth is <180 degrees past the axis azimuth: surface azimuth is +90 degrees from axis azimuth
-    surface_azimuth = np.where(relative > 180, (axis_azimuth - 90) % 360, (axis_azimuth + 90) %360)
+    surface_azimuth, axis_flag = satlib.convertSATangles.get_surface_azimuth(solar_azimuth, axis_azimuth)
     
     solar_zenith = np.radians(solar_zenith)
     solar_azimuth = np.radians(solar_azimuth)
@@ -26,7 +20,7 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis
 
     #return tracker theta:  negative when clockwise looking along TT from axis azimuth
     #                       positive when counterclockwise looking along TT from axis azimuth  
-    beta_opt = np.where(relative > 180, -1*beta_opt, beta_opt)
+    beta_opt = np.where(axis_flag, -1*beta_opt, beta_opt)
 
     return np.degrees(beta_opt)
 
