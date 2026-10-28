@@ -19,11 +19,11 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo):
 
 def kellygibson2009_tracking1(tracker_theta,ghi, ghi_clear,threshold=0.3):
     """
-    Implement the "enhanced tracking system number 1" from [1]_.
+    Implement the "enhanced tracking system number 1" from Kelly & Gibson (2009).
 
     Note: [1]_ does not provide a threshold value, so a default clear-sky threshold of 0.3 is assumed.
 
-    When the ratio of GHI to clear-sky GHI is less than a threshold, set the tracker to horizontal:
+    When the ratio of GHI to clear-sky GHI is less than a threshold, set the tracker to horizontal[1]_:
 
     if ``GHI < GHI_clear * threshold``:
     ``tracker_set = 0``
@@ -62,10 +62,11 @@ def kellygibson2009_tracking1(tracker_theta,ghi, ghi_clear,threshold=0.3):
 
 def kellygibson2009_tracking2(tracker_theta,ghi, poa_lat,threshold=1.3):
     """
-    Implement the "enhanced tracking system number 2" from [1]_.
+    Implement the "enhanced tracking system number 2" from Kelly & Gibson (2009).
+
     Assume a horizontally mounted and a latitude-tilt, equator-facing reference cell.
     When the horizontal measurement (H, or GHI) exceeds the latitude-tilt measurement (L) 
-    multiplied by a threshold, set the tracker to horizontal:
+    multiplied by a threshold, set the tracker to horizontal [1]_:
     
     if ``GHI > L * threshold``:
     ``tracker_set = 0``
@@ -111,14 +112,15 @@ def kellygibson2009_tracking2(tracker_theta,ghi, poa_lat,threshold=1.3):
 
 def kellygibson2009_tracking3(tracker_theta,dni,threshold=10):
     """
-    Implement the "enhanced tracking system number 3" from [1]_.
-    When DNI is near-zero, set the tracker to horizontal.
+    Implement the "enhanced tracking system number 3" from Kelly & Gibson (2009).
+    
 
     Note: [1]_ lists only "near-zero" DNI, so a default threshold of 10 W/m2 is applied.
     [1]_ calls for combining a GHI and DHI measurement to calculate DNI from the closure equation; 
     here, we assume that DNI is available.
 
-
+    When DNI is near-zero, set the tracker to horizontal [1]_:
+    
     ``DNI < threshold``:
     ``tracker_set = 0``
     
