@@ -64,7 +64,9 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis
 
 def munoz2024_diffuse(tracker_theta,solar_zenith,solar_azimuth, dni_extra, dni, dhi, ghi, albedo, axis_tilt=0, axis_azimuth=180):
     """
-    Calculate HSAT tracker angle using the CENER diffuse model, section 2.1.1 of [1]_.
+    Calculate HSAT tracker angle using the CENER diffuse model.
+    
+    See section 2.1.1 of [1]_.
 
     When GHI > POA, ``tracker_theta = 0``
 
@@ -142,7 +144,9 @@ def munoz2024_diffuse(tracker_theta,solar_zenith,solar_azimuth, dni_extra, dni, 
 
 def munoz2024_diffusetrackerangle(tracker_theta,POA,GHI):
     """
-    Calculate tracker angle according to CENER diffuse algorithm, section 2.1.1 of [1]_.
+    Calculate tracker angle according to CENER diffuse algorithm.
+     
+    See section 2.1.1 of [1]_.
 
     Set the tracker to 0° when GHI > POA.
     Otherwise, set the tracker to the reference tracking angle.
