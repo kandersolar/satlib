@@ -79,7 +79,7 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis
 
     return np.degrees(beta_opt)
 
-def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni, dhi, ghi, albedo, axis_tilt=0, axis_azimuth=180):
+def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni, dhi, ghi, albedo, axis_azimuth=180):
     r"""
     Calculate HSAT tracker angle using the CENER diffuse model.
     
@@ -114,8 +114,6 @@ def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni, dhi, gh
         Global horizontal irradiance. [W/m^2]
     albedo : numeric
         Ground albedo. [unitless]
-    axis_tilt : float, default 0
-        Tilt of the tracker axis from horizontal. [°]
     axis_azimuth : float, default 180
         Compass direction along which the tracker axis is oriented.
         Clockwise from north. [°]
@@ -137,7 +135,7 @@ def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni, dhi, gh
     #Compare G_poa with GHI. If GHI > G_poa, set tracker angle to 0 (flat). If GHI < G_poa, set tracker angle to reference tracking angle.
     
     # get surface orientation
-    surface_orientation = pvlib.tracking.calc_surface_orientation(tracker_theta_ref, axis_tilt = axis_tilt, axis_azimuth=axis_azimuth)
+    surface_orientation = pvlib.tracking.calc_surface_orientation(tracker_theta_ref, axis_tilt = 0, axis_azimuth=axis_azimuth)
 
 
     #Calculate G_poa:
