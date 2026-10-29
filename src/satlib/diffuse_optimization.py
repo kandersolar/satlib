@@ -22,7 +22,7 @@ def get_surface_azimuth(solar_azimuth, axis_azimuth):
     return surface_azimuth, axis_flag
 
 def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis_azimuth=180):
-    """
+    r"""
     Calculate the tracker rotation angle using the CENER analytical model.
  
     Implements eq. 12 of [1]_. The optimal rotation angle of a horizontal
@@ -80,7 +80,7 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis
     return np.degrees(beta_opt)
 
 def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni_extra, dni, dhi, ghi, albedo, axis_tilt=0, axis_azimuth=180):
-    """
+    r"""
     Calculate HSAT tracker angle using the CENER diffuse model.
     
     See section 2.1.1 of [1]_.
@@ -139,20 +139,11 @@ def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni_extra, d
     # get surface orientation
     surface_orientation = pvlib.tracking.calc_surface_orientation(tracker_theta_ref, axis_tilt = axis_tilt, axis_azimuth=axis_azimuth)
 
-    # get air mass from solar zenith angle
-    airmass = pvlib.atmosphere.get_relative_airmass(solar_zenith)
-
-    # get diffuse irradiance contribution using perez model
-    poa_sky_diffuse = pvlib.irradiance.perez(surface_orientation['surface_tilt'],surface_orientation['surface_azimuth'],\
-                                dhi, dni, dni_extra,solar_zenith, solar_azimuth,airmass)
-        
-    #get direct and ground-reflected irradiance contributions
-    poa_direct = pvlib.irradiance.beam_component(surface_orientation['surface_tilt'], surface_orientation['surface_azimuth'],\
-                                                solar_zenith,solar_azimuth,dni)
-    poa_ground = pvlib.irradiance.get_ground_diffuse(surface_orientation['surface_tilt'], ghi, albedo)
-
-    # take sum of three irradiance components to get G_poa
-    poa_total = poa_sky_diffuse + poa_direct + poa_ground
+    #Calculate G_poa
+    poa_components = pvlib.irradiance.get_total_irradiance(surface_orientation['surface_tilt'],surface_orientation['surface_azimuth'],
+        solar_zenith,solar_azimuth,dni,ghi,dhi,dni_extra=dni_extra,model='perez')
+    
+    poa_total = poa_components['poa_global']
 
     # get Munoz2024 diffuse tracker angle from reference tracking angle and GHI vs GPOA comparison 
     tracker_theta = munoz2024_diffusetrackerangle(tracker_theta_ref,poa_total,ghi)
@@ -160,7 +151,7 @@ def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni_extra, d
     return tracker_theta
 
 def munoz2024_diffusetrackerangle(tracker_theta_ref,POA,GHI):
-    """
+    r"""
     Calculate tracker angle according to CENER diffuse algorithm.
      
     See section 2.1.1 of [1]_.
