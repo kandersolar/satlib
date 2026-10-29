@@ -27,7 +27,7 @@ def kellygibson2009_tracking1(tracker_theta,ghi, ghi_clear,threshold=0.3):
 
     if ``GHI < GHI_clear * threshold``:
     ``tracker_set = 0``
-    if ``GHI >= GHI_clear`` * threshold:
+    if ``GHI >= GHI_clear * threshold``:
     ``tracker_set = tracker_theta_ref`` (reference tracking angle)
 
     Parameters
@@ -80,10 +80,11 @@ def kellygibson2009_tracking2(tracker_theta,ghi, poa_lat,threshold=1.3):
     tracker_theta : numeric
         Reference tracker rotation angle. [degrees]
     ghi : numeric
-        Global horizontal irradiance. [W/m^2]
+        Global horizontal irradiance measured by a horizontal 
+        reference cell (H). [W/m^2]
     poa_lat : numeric
-        Irradiance measured by a latitude-tilt, equator-facing reference
-        cell (L). [W/m^2]
+        Irradiance measured by a latitude-tilt, equator-facing 
+        reference cell (L). [W/m^2]
     threshold : float, default 1.3
         Ratio of ``ghi`` to ``poa_lat`` above which the tracker is set
         flat. [unitless]
@@ -144,15 +145,15 @@ def kellygibson2009_tracking3(tracker_theta,dni,threshold=10):
     References
     ----------
     .. [1] N. A. Kelly and T. L. Gibson, “Improved photovoltaic energy output 
-    for cloudy conditions with a solar tracking system,” Sol. Energy, 
-    vol. 83, no. 11, pp. 2092-2102, Nov. 2009, doi: 10.1016/j.solener.2009.08.009.
+       for cloudy conditions with a solar tracking system,” Sol. Energy, 
+       vol. 83, no. 11, pp. 2092-2102, Nov. 2009, doi: 10.1016/j.solener.2009.08.009.
     """
 
     # If DNI < threshold, rotate to 0 degrees (horizontal)
     # If DNI >= threshold, follow standard tracking algorithm
     flat_tracking_flag = dni < threshold
 
-    # take the reference tracking angle if GHI < GPOA_lat*threshold, and 0 if GHI > GPOA_lat*threshold
+    # take the reference tracking angle if DNI < threshold, and 0 if DNI >= threshold
     tracker_angle_set = np.where(flat_tracking_flag, 0, tracker_theta)
 
     return tracker_angle_set
