@@ -87,11 +87,11 @@ def kellygibson2009_tracking1(tracker_theta,ghi, ghi_clear,threshold=0.3):
 
     Note: [1]_ does not provide a threshold value, so a default clear-sky threshold of 0.3 is assumed.
 
-    When the ratio of GHI to clear-sky GHI is less than a threshold, set the tracker to horizontal[1]_:
+    When the ratio of GHI to clear-sky GHI is less than a threshold, set the tracker to horizontal [1]_:
 
     if ``GHI < GHI_clear * threshold``:
     ``tracker_set = 0``
-    
+
     if ``GHI >= GHI_clear * threshold``:
     ``tracker_set = tracker_theta_ref`` (reference tracking angle)
 
