@@ -79,7 +79,7 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis
 
     return np.degrees(beta_opt)
 
-def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni_extra, dni, dhi, ghi, albedo, axis_tilt=0, axis_azimuth=180):
+def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni, dhi, ghi, albedo, axis_tilt=0, axis_azimuth=180):
     r"""
     Calculate HSAT tracker angle using the CENER diffuse model.
     
@@ -139,9 +139,14 @@ def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni_extra, d
     # get surface orientation
     surface_orientation = pvlib.tracking.calc_surface_orientation(tracker_theta_ref, axis_tilt = axis_tilt, axis_azimuth=axis_azimuth)
 
-    #Calculate G_poa
+
+    #Calculate G_poa:
+
+    # get extraterrestrial irradiance
+    dni_extra = pvlib.irradiance.get_extra_radiation(solar_zenith)
+    # calculate G_poa using Perez model
     poa_components = pvlib.irradiance.get_total_irradiance(surface_orientation['surface_tilt'],surface_orientation['surface_azimuth'],
-        solar_zenith,solar_azimuth,dni,ghi,dhi,dni_extra=dni_extra,model='perez')
+        solar_zenith,solar_azimuth,dni,ghi,dhi,albedo=albedo,dni_extra=dni_extra,model='perez')
     
     poa_total = poa_components['poa_global']
 
