@@ -104,8 +104,6 @@ def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni, dhi, gh
         Solar zenith angle. [°]
     solar_azimuth : numeric
         Solar azimuth angle. [°]
-    dni_extra : numeric
-        Extraterrestrial normal irradiance. [W/m^2]
     dni : numeric
         Direct normal irradiance. [W/m^2]
     dhi : numeric
