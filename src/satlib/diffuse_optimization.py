@@ -79,7 +79,7 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis
 
     return np.degrees(beta_opt)
 
-def munoz2024_diffuse(tracker_theta,solar_zenith,solar_azimuth, dni_extra, dni, dhi, ghi, albedo, axis_tilt=0, axis_azimuth=180):
+def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni_extra, dni, dhi, ghi, albedo, axis_tilt=0, axis_azimuth=180):
     """
     Calculate HSAT tracker angle using the CENER diffuse model.
     
@@ -98,7 +98,7 @@ def munoz2024_diffuse(tracker_theta,solar_zenith,solar_azimuth, dni_extra, dni, 
 
     Parameters
     ----------
-    tracker_theta : numeric
+    tracker_theta_ref : numeric
         Reference tracker rotation angle, [°]
     solar_zenith : numeric
         Solar zenith angle. [°]
@@ -137,7 +137,7 @@ def munoz2024_diffuse(tracker_theta,solar_zenith,solar_azimuth, dni_extra, dni, 
     #Compare G_poa with GHI. If GHI > G_poa, set tracker angle to 0 (flat). If GHI < G_poa, set tracker angle to reference tracking angle.
     
     # get surface orientation
-    surface_orientation = pvlib.tracking.calc_surface_orientation(tracker_theta, axis_tilt = axis_tilt, axis_azimuth=axis_azimuth)
+    surface_orientation = pvlib.tracking.calc_surface_orientation(tracker_theta_ref, axis_tilt = axis_tilt, axis_azimuth=axis_azimuth)
 
     # get air mass from solar zenith angle
     airmass = pvlib.atmosphere.get_relative_airmass(solar_zenith)
@@ -155,11 +155,11 @@ def munoz2024_diffuse(tracker_theta,solar_zenith,solar_azimuth, dni_extra, dni, 
     poa_total = poa_sky_diffuse + poa_direct + poa_ground
 
     # get Munoz2024 diffuse tracker angle from reference tracking angle and GHI vs GPOA comparison 
-    tracker_angle_set = munoz2024_diffusetrackerangle(tracker_theta,poa_total,ghi)
+    tracker_theta = munoz2024_diffusetrackerangle(tracker_theta_ref,poa_total,ghi)
 
-    return tracker_angle_set
+    return tracker_theta
 
-def munoz2024_diffusetrackerangle(tracker_theta,POA,GHI):
+def munoz2024_diffusetrackerangle(tracker_theta_ref,POA,GHI):
     """
     Calculate tracker angle according to CENER diffuse algorithm.
      
@@ -170,7 +170,7 @@ def munoz2024_diffusetrackerangle(tracker_theta,POA,GHI):
   
     Parameters
     ----------
-    tracker_theta : numeric
+    tracker_theta_ref : numeric
         Reference tracker rotation angle. [°]
     POA : numeric
         Plane-of-array irradiance at the reference tracker angle. [W/m^2]
@@ -179,7 +179,7 @@ def munoz2024_diffusetrackerangle(tracker_theta,POA,GHI):
  
     Returns
     -------
-    tracker_angle_set : numeric
+    tracker_theta : numeric
         New tracker rotation angle. [°]
  
     References
@@ -195,6 +195,6 @@ def munoz2024_diffusetrackerangle(tracker_theta,POA,GHI):
     flat_tracking_flag = GHI > POA
 
     # take the reference tracking angle if GHI < GPOA, and 0 if GHI > GPOA
-    tracker_angle_set = np.where(flat_tracking_flag, 0, tracker_theta)
+    tracker_theta = np.where(flat_tracking_flag, 0, tracker_theta_ref)
 
-    return tracker_angle_set
+    return tracker_theta
