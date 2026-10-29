@@ -11,6 +11,8 @@ Functions for determining the optimal angle of a tracker.
 
    satlib.tracking.astronomical
    satlib.diffuse_optimization.munoz2024_analytical
+   satlib.diffuse_optimization.munoz2024_diffuse
+   satlib.diffuse_optimization.munoz2024_diffusetrackerangle
 
 
 Backtracking
