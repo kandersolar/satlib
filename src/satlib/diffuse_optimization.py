@@ -91,6 +91,7 @@ def kellygibson2009_tracking1(tracker_theta,ghi, ghi_clear,threshold=0.3):
 
     if ``GHI < GHI_clear * threshold``:
     ``tracker_set = 0``
+    
     if ``GHI >= GHI_clear * threshold``:
     ``tracker_set = tracker_theta_ref`` (reference tracking angle)
 
