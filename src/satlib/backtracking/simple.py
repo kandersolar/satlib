@@ -41,6 +41,6 @@ def backtrack(psza, gcr, cross_axis_tilt=0):
 
     correction_angle = np.nan * psza
     mask = np.abs(term) < 1
-    correction_angle[mask] = -np.sign(psza) * acosd(term[mask])
+    correction_angle[mask] = -np.sign(psza[mask]) * acosd(term[mask])
 
     return psza + correction_angle
