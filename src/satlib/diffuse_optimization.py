@@ -79,9 +79,6 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis
 
     return np.degrees(beta_opt)
 
-
-
-
 def kellygibson2009_tracking1(tracker_theta,ghi, ghi_clear,threshold=0.3):
     """
     Implement the "enhanced tracking system number 1" from Kelly & Gibson (2009).
@@ -125,7 +122,6 @@ def kellygibson2009_tracking1(tracker_theta,ghi, ghi_clear,threshold=0.3):
     tracker_angle_set = np.where(flat_tracking_flag, 0, tracker_theta)
 
     return tracker_angle_set
-
 
 def kellygibson2009_tracking2(tracker_theta,ghi, poa_lat,threshold=1.3):
     """
@@ -228,6 +224,7 @@ def kellygibson2009_tracking3(tracker_theta,dni,threshold=10):
     tracker_angle_set = np.where(flat_tracking_flag, 0, tracker_theta)
 
     return tracker_angle_set
+
 def munoz2024_diffuse(tracker_theta_ref,solar_zenith,solar_azimuth, dni, dhi, ghi, albedo, axis_azimuth=180):
     r"""
     Calculate HSAT tracker angle using the CENER diffuse model.
