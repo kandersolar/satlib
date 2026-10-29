@@ -20,6 +20,8 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo):
 def kellygibson2009_tracking1(tracker_theta,ghi, ghi_clear,threshold=0.3):
     """
     Implement the "enhanced tracking system number 1" from Kelly & Gibson (2009).
+    Adapted for a single-axis tracker as discussed in 3.4.4. Assume standard SAT tracking
+    when not in diffuse stow (0 degrees).
 
     Note: [1]_ does not provide a threshold value, so a default clear-sky threshold of 0.3 is assumed.
 
@@ -63,6 +65,8 @@ def kellygibson2009_tracking1(tracker_theta,ghi, ghi_clear,threshold=0.3):
 def kellygibson2009_tracking2(tracker_theta,ghi, poa_lat,threshold=1.3):
     """
     Implement the "enhanced tracking system number 2" from Kelly & Gibson (2009).
+    Adapted for a single-axis tracker as discussed in 3.4.4. Assume standard SAT tracking
+    when not in diffuse stow (0 degrees).
 
     Assume a horizontally mounted and a latitude-tilt, equator-facing reference cell.
     When the horizontal measurement (H, or GHI) exceeds the latitude-tilt measurement (L) 
@@ -114,7 +118,9 @@ def kellygibson2009_tracking2(tracker_theta,ghi, poa_lat,threshold=1.3):
 def kellygibson2009_tracking3(tracker_theta,dni,threshold=10):
     """
     Implement the "enhanced tracking system number 3" from Kelly & Gibson (2009).
-    
+    Adapted for a single-axis tracker as discussed in 3.4.4. Assume standard SAT tracking
+    when not in diffuse stow (0 degrees).
+
 
     Note: [1]_ lists only "near-zero" DNI, so a default threshold of 10 W/m2 is applied.
     [1]_ calls for combining a GHI and DHI measurement to calculate DNI from the closure equation; 
