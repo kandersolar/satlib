@@ -1,6 +1,7 @@
 import numpy as np
 import pvlib
 import satlib
+from satlib._trigd import sind, cosd
 
 def get_surface_azimuth(solar_azimuth, axis_azimuth):
     # for an HSAT tracker, get surface azimuth from solar azimuth and axis azimuth (all in degrees)
@@ -27,6 +28,8 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis
     Implements eq. 12 of [1]_. The optimal rotation angle of a horizontal
     single-axis tracker is found by taking the derivative of the total irradiance
     with respect to the tracker angle and setting it to zero.
+
+    Assumes isotropic diffuse irradiance and Lambertian ground reflection.
 
     Parameters
     ----------
@@ -66,12 +69,8 @@ def munoz2024_analytical(solar_zenith, solar_azimuth, dni, dhi, ghi, albedo,axis
 
     surface_azimuth, axis_flag = get_surface_azimuth(solar_azimuth, axis_azimuth)
     
-    solar_zenith = np.radians(solar_zenith)
-    solar_azimuth = np.radians(solar_azimuth)
-    surface_azimuth = np.radians(surface_azimuth)
-
-    numerator = dni * np.sin(solar_zenith) * np.cos(solar_azimuth - surface_azimuth)
-    denominator = (dhi - ghi*albedo)/2 + dni * np.cos(solar_zenith)
+    numerator = dni * sind(solar_zenith) * cosd(solar_azimuth - surface_azimuth)
+    denominator = (dhi - ghi*albedo)/2 + dni * cosd(solar_zenith)
     beta_opt = np.arctan(numerator / denominator)
 
     #return tracker theta:  negative when clockwise looking along TT from axis azimuth
