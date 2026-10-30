@@ -82,14 +82,4 @@ Functions for calculating geometric quantities for trackers.
    satlib.geometry.axis_tilt
    satlib.geometry.cross_axis_tilt
    satlib.geometry.projected_solar_zenith_angle
-
-
-Shading
--------
-
-Functions for row-to-row shading.
-
-.. autosummary::
-   :toctree: reference
-
-   satlib.shading.shaded_fraction
+   satlib.geometry.shaded_fraction
