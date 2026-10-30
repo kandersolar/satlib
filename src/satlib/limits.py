@@ -1,24 +1,59 @@
 import pandas as pd
 import numpy as np
+import warnings
 
 
-def _smear(x, limit):
-    ts = x.index[1] - x.index[0]
-    limit = limit * (ts / pd.Timedelta("1min"))
+def _forward_smear(x, limit):
     diff = x.diff()
     carryover = 0
     for i in range(1, len(diff)):
-        d = diff.iloc[i]
-        d = d + carryover
-        if d > limit:
-            diff.iloc[i] = limit
-            carryover = d - limit
-        elif d < -limit:
-            diff.iloc[i] = -limit
-            carryover = d + limit
+        desired_step = diff.iloc[i] + carryover
+        if desired_step > limit:
+            actual_step = limit
+        elif desired_step < -limit:
+            actual_step = -limit
         else:
-            diff.iloc[i] = d
-            carryover = 0
+            actual_step = desired_step
+        diff.iloc[i] = actual_step
+        carryover = desired_step - actual_step
+
+    x = x.copy()
+    x.iloc[1:] = x.iloc[0] + diff.cumsum().iloc[1:]
+    return x
+
+
+def _backward_smear(x, limit):
+    diff = x.diff()
+    for i in range(1, len(diff)):
+        desired_step = diff.iloc[i]
+        if desired_step > limit:
+            actual_step = limit
+        elif desired_step < -limit:
+            actual_step = -limit
+        else:
+            actual_step = desired_step
+
+        diff.iloc[i] = actual_step
+        excess = desired_step - actual_step
+        if excess == 0:
+            continue
+        # else, backtrack and distribute the excess in earlier timestamps
+        for j in range(i-1, 0, -1):
+            desired_step = excess + diff.iloc[j]
+            if desired_step > limit:
+                actual_step = limit
+            elif desired_step < -limit:
+                actual_step = -limit
+            else:
+                actual_step = desired_step
+            diff.iloc[j] = actual_step
+            excess = desired_step - actual_step
+            if excess == 0:
+                break
+        else:
+            warnings.warn("clip_speed: excess travel could not be fully distributed. "
+                          "Result may be unexpected.")
+
     x = x.copy()
     x.iloc[1:] = x.iloc[0] + diff.cumsum().iloc[1:]
     return x
@@ -59,26 +94,18 @@ def clip_speed(theta, limit, how):
         [degrees]
     """
     if how == "lag":
-        return _smear(theta, limit)
+        return _forward_smear(theta, limit)
     if how == "lead":
-        return _reverse(_smear(_reverse(theta), limit))
+        return _backward_smear(theta, limit)
     if how == "steeper":
-        x1 = theta[theta < 0]
-        x2 = theta[theta > 0]
-        y1 = _smear(x1, limit)
-        y2 = _reverse(_smear(_reverse(x2), limit))
         out = theta.copy()
-        out[theta < 0] = y1
-        out[theta > 0] = y2
+        out[theta < 0] = clip_speed(theta[theta < 0], limit, "lead")
+        out[theta > 0] = clip_speed(theta[theta > 0], limit, "lag")
         return out
     if how == "shallower":
-        x1 = theta[theta < 0]
-        x2 = theta[theta > 0]
-        y1 = _reverse(_smear(_reverse(x1), limit))
-        y2 = _smear(x2, limit)
         out = theta.copy()
-        out[theta < 0] = y1
-        out[theta > 0] = y2
+        out[theta < 0] = clip_speed(theta[theta < 0], limit, "lag")
+        out[theta > 0] = clip_speed(theta[theta > 0], limit, "lead")
         return out
     raise
 
