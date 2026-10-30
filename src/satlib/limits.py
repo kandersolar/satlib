@@ -45,8 +45,8 @@ def clip_speed(theta, limit, how):
 
     Parameters
     ----------
-    theta : numeric
-        The input time series. [degrees]
+    theta : pandas.Series
+        The input time series.  Must have datetime index. [degrees]
     limit : float
         Maximum rotation rate. [degrees per minute]
     how : {"lead", "lag", "steeper", "shallower"}
@@ -54,7 +54,7 @@ def clip_speed(theta, limit, how):
 
     Returns
     -------
-    limited : numeric
+    limited : pandas.Series
         The time series, subject to the specified rotaiton limit.
         [degrees]
     """
