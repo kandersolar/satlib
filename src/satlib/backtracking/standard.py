@@ -13,7 +13,7 @@ def backtrack_standard(psza, gcr, cross_axis_tilt=0):
     Parameters
     ----------
     psza : numeric
-        Project solar zenith angle. [degrees]
+        Projected solar zenith angle. [degrees]
 
     gcr : float
         Ground coverage ratio. [unitless]
@@ -23,8 +23,9 @@ def backtrack_standard(psza, gcr, cross_axis_tilt=0):
 
     Returns
     -------
-    numeric: the conventional backtracking position, or nan if not
-    applicable. [degrees]
+    positions : numeric 
+        The conventional backtracking positions, or nan if not
+        applicable. [degrees]
 
     See also
     --------

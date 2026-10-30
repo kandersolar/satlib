@@ -1,4 +1,5 @@
 import satlib
+from satlib._trigd import cosd, acosd
 
 import numpy as np
 import warnings
@@ -68,7 +69,7 @@ def backtrack_psbt_effective_gcr(psza, gcr, allowed_shade_fractions):
     with np.errstate(invalid='ignore'):
         mask = (
             (critical_angles < np.abs(psza)) &
-            (np.abs(psza - np.sign(psza) * np.degrees(np.arccos(np.cos(np.radians(psza))/candidate_gcrs))) < 60)
+            (np.abs(psza - np.sign(psza) * acosd(cosd(psza)/candidate_gcrs)) < 60)
         )
     masked_gcr = np.where(mask, candidate_gcrs, np.nan)
 

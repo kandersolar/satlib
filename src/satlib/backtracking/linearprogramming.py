@@ -291,7 +291,7 @@ def backtrack_lp2d(psza, x, y, collector_bandwidth, theta_max, gang_size=1,
     Parameters
     ----------
     psza : numeric
-        Project solar zenith angle. [degrees]
+        Projected solar zenith angle. [degrees]
 
     x : np.array
         x-coordinates for each tracker axis, in the coordinate system
@@ -313,10 +313,10 @@ def backtrack_lp2d(psza, x, y, collector_bandwidth, theta_max, gang_size=1,
 
     max_shaded_fraction : float, default 0
         Maximum tolerable shaded collector fraction. [unitless]
-    
+
     kwargs : optional
         Additional parameters to pass through to ``scipy.optimize.linprog``.
-    
+
     Returns
     -------
     positions : np.ndarray
