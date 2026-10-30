@@ -27,9 +27,8 @@ Functions for avoiding and managing row-to-row shade.
    :toctree: reference
 
    satlib.backtracking.backtrack_standard
-   satlib.backtracking.ps_backtracking.get_effective_gcr
-   satlib.backtracking.ps_backtracking.partial_shade_tracking
-   satlib.backtracking.ps_backtracking.partial_shade_tracking2
+   satlib.backtracking.backtrack_psbt
+   satlib.backtracking.backtrack_psbt_effective_gcr
    satlib.backtracking.backtrack_lp2d
 
 
