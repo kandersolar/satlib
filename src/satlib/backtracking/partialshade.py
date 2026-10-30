@@ -33,7 +33,7 @@ def backtrack_psbt(psza, gcr, allowed_shade_fractions):
     theta = np.where(np.abs(psza) < 90, psza, np.nan)
     for fss in sorted(allowed_shade_fractions):
         candidate_tr = satlib.backtracking.backtrack_standard(psza, gcr=gcr*(1-fss))
-        candidate_fs = satlib.shading.shaded_fraction(psza, candidate_tr, collector_width=gcr, pitch=1)
+        candidate_fs = satlib.geometry.shaded_fraction(psza, candidate_tr, collector_width=gcr, pitch=1)
         theta = np.where(np.abs(candidate_fs - fss) < 1e-4, candidate_tr, theta)
     return theta
 
