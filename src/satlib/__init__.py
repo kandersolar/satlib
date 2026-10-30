@@ -11,6 +11,7 @@ from satlib import (
     discretization,
     geometry,
     limits,
+    shading,
     tracking,
     twist,
     _trigd,
