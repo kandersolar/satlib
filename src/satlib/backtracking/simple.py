@@ -1,5 +1,6 @@
 import numpy as np
 from satlib._trigd import cosd, acosd
+import satlib
 
 
 def backtrack(psza, gcr, cross_axis_tilt=0):
@@ -18,7 +19,7 @@ def backtrack(psza, gcr, cross_axis_tilt=0):
         Ground coverage ratio. [unitless]
 
     cross_axis_tilt : float, default 0.0
-        Cross-axis tilt angle. [degrees]
+        Cross-axis tilt angle, defined around the same axis as ``psza``. [degrees]
 
     Returns
     -------
@@ -39,8 +40,8 @@ def backtrack(psza, gcr, cross_axis_tilt=0):
     """
     term = np.abs(cosd(psza - cross_axis_tilt)) / (gcr * cosd(cross_axis_tilt))
 
-    correction_angle = np.nan * psza
-    mask = np.abs(term) < 1
-    correction_angle[mask] = -np.sign(psza[mask]) * acosd(term[mask])
+    mask = np.array(np.abs(term) < 1)
+    correction_angle = np.where(mask, acosd(np.array(term), where=mask, out=None), np.nan)
+    out = psza - np.sign(psza) * correction_angle
 
-    return psza + correction_angle
+    return satlib._util.fixtype(out)
