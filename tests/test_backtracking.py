@@ -15,9 +15,9 @@ def theta():
     return theta
 
 
-def test_simple_backtracking_flat(theta):
+def test_backtracking_standard_flat(theta):
     # null in midday, close to zero near dawn/dusk
-    out = satlib.backtracking.simple.backtrack(theta, gcr=0.5, cross_axis_tilt=0)
+    out = satlib.backtracking.backtrack_standard(theta, gcr=0.5, cross_axis_tilt=0)
 
     assert out.iloc[0] < 0
     assert abs(out.iloc[0]) < 1
@@ -29,11 +29,11 @@ def test_simple_backtracking_flat(theta):
     assert np.isnan(out.iloc[n])
 
 
-def test_simple_backtracking_sloped(theta):
+def test_backtracking_standard_sloped(theta):
     # cross-axis tilt -> steeper/shallower tracker positions
-    out0 = satlib.backtracking.simple.backtrack(theta, gcr=0.5, cross_axis_tilt=0)
-    outp = satlib.backtracking.simple.backtrack(theta, gcr=0.5, cross_axis_tilt=5)
-    outn = satlib.backtracking.simple.backtrack(theta, gcr=0.5, cross_axis_tilt=-5)
+    out0 = satlib.backtracking.backtrack_standard(theta, gcr=0.5, cross_axis_tilt=0)
+    outp = satlib.backtracking.backtrack_standard(theta, gcr=0.5, cross_axis_tilt=5)
+    outn = satlib.backtracking.backtrack_standard(theta, gcr=0.5, cross_axis_tilt=-5)
 
     # morning
     assert abs(outp.iloc[5]) < abs(out0.iloc[5])
@@ -43,23 +43,23 @@ def test_simple_backtracking_sloped(theta):
     assert abs(outn.iloc[-5]) < abs(out0.iloc[-5])
 
 
-def test_simple_backtracking_gcr(theta):
+def test_backtracking_standard_gcr(theta):
     # increase gcr -> shallower tracker positions
-    out1 = satlib.backtracking.simple.backtrack(theta, gcr=0.4, cross_axis_tilt=0)
-    out2 = satlib.backtracking.simple.backtrack(theta, gcr=0.5, cross_axis_tilt=0)
+    out1 = satlib.backtracking.backtrack_standard(theta, gcr=0.4, cross_axis_tilt=0)
+    out2 = satlib.backtracking.backtrack_standard(theta, gcr=0.5, cross_axis_tilt=0)
 
     assert all((abs(out1) > abs(out2)) | np.isnan(out1))
 
 
-def test_simple_backtrack_types(theta):
+def test_backtracking_standard_types(theta):
     # scalar in, scalar out:
-    out = satlib.backtracking.simple.backtrack(theta.iloc[5], gcr=0.5, cross_axis_tilt=0)
+    out = satlib.backtracking.backtrack_standard(theta.iloc[5], gcr=0.5, cross_axis_tilt=0)
     assert np.isscalar(out)
 
     # array in, array out:
-    out = satlib.backtracking.simple.backtrack(theta.values, gcr=0.5, cross_axis_tilt=0)
+    out = satlib.backtracking.backtrack_standard(theta.values, gcr=0.5, cross_axis_tilt=0)
     assert isinstance(out, np.ndarray)
 
     # series in, series out:
-    out = satlib.backtracking.simple.backtrack(theta, gcr=0.5, cross_axis_tilt=0)
+    out = satlib.backtracking.backtrack_standard(theta, gcr=0.5, cross_axis_tilt=0)
     assert isinstance(out, pd.Series)

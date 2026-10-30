@@ -3,9 +3,9 @@ from satlib._trigd import cosd, acosd
 import satlib
 
 
-def backtrack(psza, gcr, cross_axis_tilt=0):
+def backtrack_standard(psza, gcr, cross_axis_tilt=0):
     """
-    Compute simple backtracking angles.
+    Compute backtracking angles for planar terrain.
 
     Backtracking angles come from the conventional flat-terrain method [1]_
     or the slope-aware method [2]_.
@@ -13,7 +13,7 @@ def backtrack(psza, gcr, cross_axis_tilt=0):
     Parameters
     ----------
     psza : numeric
-        Project solar zenith angle. [degrees]
+        Projected solar zenith angle. [degrees]
 
     gcr : float
         Ground coverage ratio. [unitless]
@@ -23,8 +23,9 @@ def backtrack(psza, gcr, cross_axis_tilt=0):
 
     Returns
     -------
-    numeric: the conventional backtracking position, or nan if not
-    applicable. [degrees]
+    positions : numeric 
+        The conventional backtracking positions, or nan if not
+        applicable. [degrees]
 
     See also
     --------

@@ -26,11 +26,10 @@ Functions for avoiding and managing row-to-row shade.
 .. autosummary::
    :toctree: reference
 
-   satlib.backtracking.simple.backtrack
-   satlib.backtracking.ps_backtracking.get_effective_gcr
-   satlib.backtracking.ps_backtracking.partial_shade_tracking
-   satlib.backtracking.ps_backtracking.partial_shade_tracking2
-   satlib.backtracking.lp_backtracking.get_tracker_rotations
+   satlib.backtracking.backtrack_standard
+   satlib.backtracking.backtrack_psbt
+   satlib.backtracking.backtrack_psbt_effective_gcr
+   satlib.backtracking.backtrack_lp2d
 
 
 Discretization
@@ -83,4 +82,4 @@ Functions for calculating geometric quantities for trackers.
    satlib.geometry.axis_tilt
    satlib.geometry.cross_axis_tilt
    satlib.geometry.projected_solar_zenith_angle
-
+   satlib.geometry.shaded_fraction
