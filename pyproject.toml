@@ -9,7 +9,7 @@ dynamic = ["version"]
 authors = [
   { name="Kevin Anderson, Mandy Lewis" },
 ]
-description = "Simulating single-axis solar trackers."
+description = "satlib is a package for simulating simulating control algorithms for single-axis solar trackers like the ones found in large solar photovoltaic power plants."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
