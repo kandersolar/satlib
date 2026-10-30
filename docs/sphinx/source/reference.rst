@@ -30,7 +30,7 @@ Functions for avoiding and managing row-to-row shade.
    satlib.backtracking.ps_backtracking.get_effective_gcr
    satlib.backtracking.ps_backtracking.partial_shade_tracking
    satlib.backtracking.ps_backtracking.partial_shade_tracking2
-   satlib.backtracking.lp_backtracking.get_tracker_rotations
+   satlib.backtracking.backtrack_lp2d
 
 
 Discretization

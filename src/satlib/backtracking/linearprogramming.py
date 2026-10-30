@@ -277,8 +277,58 @@ def _run_half_day(psza, x, y, l, theta_max, gang_size, max_shaded_fraction,
     return theta #, deltas, is_feasible
 
 
-def get_tracker_rotations(psza, x, y, collector_bandwidth, theta_max, gang_size,
-                          max_shaded_fraction, **kwargs):
+def backtrack_lp2d(psza, x, y, collector_bandwidth, theta_max, gang_size=1,
+                   max_shaded_fraction=0, **kwargs):
+    """
+    Compute backtracking angles for rolling terrain using the LP2D method.
+
+    The LP2D method [1]_ solve a linear optimization problem to determine
+    backtracking schedules for all trackers in an array simultaneously.
+
+    The terrain slope is assumed to vary only in the direction perpendicular
+    to the tracker axes.
+
+    Parameters
+    ----------
+    psza : numeric
+        Project solar zenith angle. [degrees]
+
+    x : np.array
+        x-coordinates for each tracker axis, in the coordinate system
+        aligned with the tracker axes. [meters]
+
+    y : np.array
+        y-coordinates for each tracker axis, in the coordinate system
+        aligned with the tracker axes. [meters]
+
+    collector_bandwidth : float
+        Width of each tracker table. [meters]
+
+    theta_max : float
+        Maximum allowable tracker position. [degrees]
+
+    gang_size : int, default 1
+        Number of trackers per gang.  Trackers in a gang are constrained
+        to track together.
+
+    max_shaded_fraction : float, default 0
+        Maximum tolerable shaded collector fraction. [unitless]
+    
+    kwargs : optional
+        Additional parameters to pass through to ``scipy.optimize.linprog``.
+    
+    Returns
+    -------
+    positions : np.ndarray
+        Optimized tracker positions. Shape is (len(psza), len(x)). [degrees]
+
+    References
+    ----------
+    .. [1] K. S. Anderson, A. R. Jensen, and D. M. Riley, "A Linear Programming
+       Approach to Backtracking for Single-Axis Trackers on Rolling Terrain,"
+       IEEE J. Photovoltaics, vol. 16, no. 2, pp. 291–298, Mar. 2026,
+       :doi:`10.1109/jphotov.2025.3645781`. 
+    """
 
     # determine the boundaries between backtracking & truetracking
     pitch = np.diff(x)
