@@ -38,6 +38,9 @@ doc = [
      "pydata-sphinx-theme",
      "matplotlib",
 ]
+test = [
+    "pytest",
+]
 
 
 [tool.setuptools]
