@@ -28,6 +28,48 @@ def _reverse(x):
     return pd.Series(x.values[::-1], index=x.index)
 
 
+def _find_windows(x):
+    """
+    Find boundaries of alternating positive and negative
+    windows.  Zeros are included in all windows, so the returned
+    boundaries may be overlapping.
+
+    Parameters
+    ----------
+    x : numpy.array
+
+    Returns
+    -------
+    boundaries : list of tuple
+        List of tuples (start, end, sign) of each window.
+    """
+    boundaries = []
+    current_sign = int(np.sign(x[x!=0][0]))
+    start = 0  # first window always start at index zero
+    zero_run_start = 0  # start of the current run of zeros
+    for i in range(1, len(x)):
+        if x[i] != 0 and x[i-1] == 0:
+            # we just exited a run of zeros
+            if np.sign(x[i]) == current_sign:
+                # haven't exited the current window yet.
+                continue
+        if x[i] != 0 and np.sign(x[i]) != current_sign:
+            # this window is over; store its info
+            # and set up the next one
+            boundaries.append((start, i, current_sign))
+            if x[i-1] == 0:
+                start = zero_run_start
+            else:
+                start = i
+            current_sign *= -1
+            continue
+        if x[i] == 0 and x[i-1] != 0:
+            # we just found some zeros
+            zero_run_start = i
+    boundaries.append((start, i+1, current_sign))
+    return boundaries
+
+
 def clip_speed(theta, limit, how):
     """
     Apply rotation speed limits to a tracker position time
@@ -38,8 +80,6 @@ def clip_speed(theta, limit, how):
 
     * "lead": leads the input time series
     * "lag": lags the input time series
-    * "steeper": leads and lags such that it is at steeper tilt
-      than the input
     * "shallower": leads and lags such that it is at shallower
       tilt than the input
 
@@ -49,39 +89,40 @@ def clip_speed(theta, limit, how):
         The input time series.  Must have datetime index. [degrees]
     limit : float
         Maximum rotation rate. [degrees per minute]
-    how : {"lead", "lag", "steeper", "shallower"}
+    how : {"lead", "lag", "shallower"}
         Which method to apply.
 
     Returns
     -------
     limited : pandas.Series
-        The time series, subject to the specified rotaiton limit.
+        The time series, subject to the specified rotation limit.
         [degrees]
     """
+    if how not in ['lag', 'lead', 'shallower']:
+        raise ValueError(f'Invalid "how": "{how}"')
+
     if how == "lag":
         return _smear(theta, limit)
     if how == "lead":
         return _reverse(_smear(_reverse(theta), limit))
-    if how == "steeper":
-        x1 = theta[theta < 0]
-        x2 = theta[theta > 0]
-        y1 = _smear(x1, limit)
-        y2 = _reverse(_smear(_reverse(x2), limit))
-        out = theta.copy()
-        out[theta < 0] = y1
-        out[theta > 0] = y2
-        return out
-    if how == "shallower":
-        x1 = theta[theta < 0]
-        x2 = theta[theta > 0]
-        y1 = _reverse(_smear(_reverse(x1), limit))
-        y2 = _smear(x2, limit)
-        out = theta.copy()
-        out[theta < 0] = y1
-        out[theta > 0] = y2
-        return out
-    raise
 
+    # - positive value, positive slope: lag
+    # - positive value, negative slope: lead
+    # - negative value, positive slope: lead
+    # - negative value, negative slope: lag
+
+    window_boundaries = _find_windows((theta * theta.diff()).values[1:])
+    out = theta.copy()
+    for start, end, sign in window_boundaries:
+        start = start - 1 if start > 0 else start
+        end = end + 1 if end < len(out) else end
+        subset = out.iloc[start:end]
+        if sign > 0:
+            out.iloc[start:end] = _smear(subset, limit)
+        elif sign < 0:
+            out.iloc[start:end] = _reverse(_smear(_reverse(subset), limit))
+ 
+    return out
 
 def clip_position(theta, limit):
     """

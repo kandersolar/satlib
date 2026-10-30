@@ -24,6 +24,18 @@ bt = satlib.backtracking.backtrack_standard(tt, gcr=0.4)
 theta = np.where(np.isnan(bt), tt, bt)
 theta = pd.Series(theta, index=sp.index)
 
+
+# %%
+
+theta = 0 * theta
+
+theta.iloc[0:10] = 100
+
+theta.iloc[450:460] = -100
+theta.iloc[600:700] = 100
+theta.iloc[750:800] = 500
+
+
 # %%
 
 theta.plot(c='k', label='baseline')
@@ -35,8 +47,7 @@ for how in ["lead", "lag"]:
 # %%
 
 theta.plot(c='k', label='baseline')
-for how in ["steeper", "shallower"]:
-    smeared = satlib.limits.clip_speed(theta, 1, how=how)
-    smeared.plot(label=how)
-    plt.legend()
+smeared = satlib.limits.clip_speed(theta, 1, how="shallower")
+smeared.plot(label=how)
+plt.legend()
 
