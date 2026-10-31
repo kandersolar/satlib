@@ -24,18 +24,6 @@ bt = satlib.backtracking.backtrack_standard(tt, gcr=0.4)
 theta = np.where(np.isnan(bt), tt, bt)
 theta = pd.Series(theta, index=sp.index)
 
-
-# %%
-
-theta = 0 * theta
-
-theta.iloc[0:10] = 100
-
-theta.iloc[450:460] = -100
-theta.iloc[600:700] = 100
-theta.iloc[750:800] = 500
-
-
 # %%
 
 theta.plot(c='k', label='baseline')
@@ -51,3 +39,14 @@ smeared = satlib.limits.clip_speed(theta, 1, how="shallower")
 smeared.plot(label=how)
 plt.legend()
 
+# %%
+
+n = 500
+theta = pd.Series(25 * np.sin(np.linspace(0, 4*np.pi, n)), index=pd.date_range("2020-06-01 12:00", freq="6s", periods=n))
+theta = np.clip(theta, -20, 20)
+limit = 5
+
+theta.plot(c='k', label='baseline')
+smeared = satlib.limits.clip_speed(theta, 5, how="shallower")
+smeared.plot(label=how)
+plt.legend()

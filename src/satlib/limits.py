@@ -118,10 +118,34 @@ def clip_speed(theta, limit, how):
         end = end + 1 if end < len(out) else end
         subset = out.iloc[start:end]
         if sign > 0:
-            out.iloc[start:end] = _smear(subset, limit)
+            smeared = _smear(subset, limit)
+            # did the smearing "catch up" by the end of the window?
+            caught_up = abs(smeared.iloc[-1] - out.iloc[end-1]) < 1e-10
+            out.iloc[start:end] = smeared
+            if not caught_up:
+                # need to extend and continue smearing beyond the end
+                # TODO smearing the full array is quite wasteful.
+                # create some kind of "smear until equal" alternative.
+                smeared = _smear(out.iloc[end-1:], limit)
+                # find where it finally does catch up (first equal index)
+                new_end = np.argmax(smeared.iloc[1:] == out.iloc[end:])
+                out.iloc[end:end+new_end] = smeared.iloc[:new_end]
+
         elif sign < 0:
-            out.iloc[start:end] = _reverse(_smear(_reverse(subset), limit))
- 
+            smeared = _reverse(_smear(_reverse(subset), limit))
+            # did the smearing "catch up" by the end (start) of the window?
+            caught_up = abs(smeared.iloc[0] - out.iloc[start]) < 1e-10
+            #import pdb; pdb.set_trace()
+            out.iloc[start:end] = smeared
+            if not caught_up:
+                # need to extend and continue smearing beyond the end (start)
+                # TODO smearing the full array is quite wasteful.
+                # create some kind of "smear until equal" alternative.
+                smeared = _reverse(_smear(_reverse(out.iloc[:start+1]), limit))
+                # find where it finally does catch up (last equal index)
+                new_start = np.argmax((smeared.iloc[:-1] == out.iloc[:start]).iloc[::-1])
+                out.iloc[start-new_start:start] = smeared.iloc[-new_start-1:-1]
+
     return out
 
 def clip_position(theta, limit):
