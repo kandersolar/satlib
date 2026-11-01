@@ -60,7 +60,16 @@ def discretized():
     return discretized
 
 
-@pytest.mark.parametrize("how",["lead", "lag", "shallower"])
+def _verify_shallower_requirements(clipped, theta, limit, match=None):
+    assert (clipped.abs() <= theta.abs() + 1e-6).all()  # achieves "shallower" goal
+    speed = clipped.diff() / (clipped.index.diff() / pd.Timedelta("1min"))
+    assert speed.abs().max() <= (limit + 1e-6)  # achieves speed limit goal
+    assert np.all(~np.isnan(clipped))  # no nans
+    if match is not None:
+        assert np.mean(np.isclose(clipped, theta)) > match  # at least some match
+
+
+@pytest.mark.parametrize("how", ["lead", "lag"])
 def test_clip_speed_discrete(discretized, how):
     limit = 1
     clipped = satlib.limits.clip_speed(discretized, limit=limit, how=how)
@@ -68,9 +77,15 @@ def test_clip_speed_discrete(discretized, how):
     assert speed.abs().max() <= limit
 
 
+def test_clip_speed_discrete_shallower(discretized):
+    limit = 1
+    clipped = satlib.limits.clip_speed(discretized, limit=limit, how="shallower")
+    _verify_shallower_requirements(clipped, discretized, limit, match=0.9)
+
+
 def test_clip_speed_shallower():
     # shallower is more complicated than lead/lag;
-    # test several tracker curves that hit speed limits in all four quadrants of
+    # test a tracker curve that hits speed limits in all four quadrants of
     # the (tracker angle, tracker velocity) plane.
     n = 500
     theta = pd.Series(25 * np.sin(np.linspace(0, 4*np.pi, n)), index=pd.date_range("2020-06-01 12:00", freq="6s", periods=n))
@@ -78,43 +93,49 @@ def test_clip_speed_shallower():
     limit = 5
 
     clipped = satlib.limits.clip_speed(theta, limit=limit, how="shallower")
-    assert (clipped.abs() <= theta.abs() + 1e-6).all()  # achieves "shallower" goal
-    speed = clipped.diff() / (clipped.index.diff() / pd.Timedelta("1min"))
-    assert speed.abs().max() <= (limit + 1e-6)  # achieves speed limit goal
+    _verify_shallower_requirements(clipped, theta, limit, match=0.3)
 
 
-def test_clip_speed_shallower_discontintuity():
-    # handling discontinuities is difficult
-
+@pytest.fixture
+def psbt():
     times = pd.date_range("2020-06-01 08:00", "2020-06-01 16:00", freq="1min")
     psza = np.linspace(-90, 90, len(times))
     bt = satlib.backtracking.backtrack_psbt(psza, gcr=0.4, allowed_shade_fractions=[0.0, 0.5])
     theta = np.where(np.isnan(bt), psza, bt)
-    theta = pd.Series(theta, index=times)
+    return pd.Series(theta, index=times)
 
+
+def test_clip_speed_shallower_discontinuities(psbt):
+    # handling discontinuities is tricky.
+    # use PSBT as an example
     limit = 1
-    clipped = satlib.limits.clip_speed(theta, 1, how="shallower")
-    assert (clipped.abs() <= theta.abs() + 1e-6).all()  # achieves "shallower" goal
+    clipped = satlib.limits.clip_speed(psbt, limit=limit, how="shallower")
+    _verify_shallower_requirements(clipped, psbt, limit, match=0.75)
+
+
+def test_clip_speed_zeros(psbt):
+    psbt.iloc[:10] = 0
+    psbt.iloc[-10:] = 0
+    psbt.iloc[50:60] = 0
+    limit = 1
+    clipped = satlib.limits.clip_speed(psbt, limit=limit, how="shallower")
+    _verify_shallower_requirements(clipped, psbt, limit, match=0.7)
+
+
+def test_clip_speed_nans(psbt):
+    psbt.iloc[:10] = np.nan
+    psbt.iloc[-10:] = np.nan
+    psbt.iloc[50:60] = np.nan
+    limit = 1
+    clipped = satlib.limits.clip_speed(psbt, limit=limit, how="shallower")
+
+    assert ((clipped.abs() <= psbt.abs() + 1e-6) |
+            (clipped.isnull() & psbt.isnull())).all()  # achieves "shallower" goal
     speed = clipped.diff() / (clipped.index.diff() / pd.Timedelta("1min"))
     assert speed.abs().max() <= (limit + 1e-6)  # achieves speed limit goal
-
-
-def test_clip_speed_nans():
-    pass
+    assert np.mean(np.isclose(clipped, psbt)) > 0.75
 
 
 def test_clip_speed_invalid(toy_thetas):
     with pytest.raises(ValueError, match="Invalid"):
         satlib.limits.clip_speed(toy_thetas, limit=5, how="not a method")
-
-
-def test__find_windows():
-    #    0  1  2  3   4   5  6  7  8   9  10
-    x = [1, 2, 0, 1, -1, -1, 0, 0, 1, -1, 1]
-    boundaries = satlib.limits._find_windows(np.array(x))
-    assert boundaries == [(0, 4, 1), (4, 8, -1), (6, 9, 1), (9, 10, -1), (10, 11, 1)]
-
-    #    0  1  2  3  4  5  6   7   8  9  10
-    x = [0, 0, 1, 1, 1, 0, 0, -1, -1, 0, 0]
-    boundaries = satlib.limits._find_windows(np.array(x))
-    assert boundaries == [(0, 7, 1), (5, 11, -1)]

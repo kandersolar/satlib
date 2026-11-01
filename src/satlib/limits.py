@@ -2,72 +2,81 @@ import pandas as pd
 import numpy as np
 
 
-def _smear(x, limit):
-    ts = x.index[1] - x.index[0]
-    limit = limit * (ts / pd.Timedelta("1min"))
-    diff = x.diff()
+def _forward_smear(x, limit):
+    # x: np.array
+    # limit: speed limit, in degrees per time interval
+    diff = np.diff(x)
     carryover = 0
-    for i in range(1, len(diff)):
-        d = diff.iloc[i]
-        d = d + carryover
-        if d > limit:
-            diff.iloc[i] = limit
-            carryover = d - limit
-        elif d < -limit:
-            diff.iloc[i] = -limit
-            carryover = d + limit
-        else:
-            diff.iloc[i] = d
-            carryover = 0
-    x = x.copy()
-    x.iloc[1:] = x.iloc[0] + diff.cumsum().iloc[1:]
-    return x
+    for i in range(0, len(diff)):
+        desired_step = diff[i] + carryover
+        actual_step = np.clip(desired_step, -limit, limit)
+        diff[i] = actual_step
+        carryover = desired_step - actual_step
+        
+    out = np.concat([x[:1], x[0] + np.cumsum(diff)])
+    return out
 
 
-def _reverse(x):
-    return pd.Series(x.values[::-1], index=x.index)
+def _forward_smear_until_change(x, limit):
+    # x: np.array
+    # limit: speed limit, in degrees per time interval
+    diff = np.diff(x)
+    carryover = 0
+    n_smeared = len(diff)
+    actual_step = diff[0]
+    for i in range(0, len(diff)):
+        desired_step = diff[i] + carryover
+        # use actual_step from previous iteration
+        if (np.sign(desired_step) != np.sign(actual_step)) and (actual_step != 0):
+            # we've reached a "change"
+            n_smeared = i
+            break
+
+        actual_step = np.clip(desired_step, -limit, limit)
+        diff[i] = actual_step
+        carryover = desired_step - actual_step
+
+    out = np.concat([x[:1], x[0] + np.cumsum(diff[:n_smeared])])
+    return out
 
 
-def _find_windows(x):
-    """
-    Find boundaries of alternating positive and negative
-    windows.  Zeros are included in all windows, so the returned
-    boundaries may be overlapping.
+def _smear_until_change(x, limit, direction):
+    if direction == "forward":
+        return _forward_smear_until_change(x, limit)
+    elif direction == "backward":
+        return _forward_smear_until_change(x[::-1], limit)[::-1]
+    raise ValueError(direction)
 
-    Parameters
-    ----------
-    x : numpy.array
 
-    Returns
-    -------
-    boundaries : list of tuple
-        List of tuples (start, end, sign) of each window.
-    """
-    boundaries = []
-    current_sign = int(np.sign(x[x!=0][0]))
-    start = 0  # first window always start at index zero
-    zero_run_start = 0  # start of the current run of zeros
-    for i in range(1, len(x)):
-        if x[i] != 0 and x[i-1] == 0:
-            # we just exited a run of zeros
-            if np.sign(x[i]) == current_sign:
-                # haven't exited the current window yet.
-                continue
-        if x[i] != 0 and np.sign(x[i]) != current_sign:
-            # this window is over; store its info
-            # and set up the next one
-            boundaries.append((start, i, current_sign))
-            if x[i-1] == 0:
-                start = zero_run_start
-            else:
-                start = i
-            current_sign *= -1
-            continue
-        if x[i] == 0 and x[i-1] != 0:
-            # we just found some zeros
-            zero_run_start = i
-    boundaries.append((start, i+1, current_sign))
-    return boundaries
+def _successive_minima(theta, limit, iteration_limit):
+
+    out = theta.copy()
+    is_solved = np.full(out.shape, False)
+
+    n_iteration = 0
+    while not np.all(is_solved):
+        # find smallest value we haven't solved yet
+        aux = theta.copy()
+        aux[is_solved] = 1e10  # ignore solved points
+        idx = np.argmin(np.abs(aux))
+        
+        if idx < len(out) - 1:
+            forward_smear = _smear_until_change(out[idx:], limit, "forward")
+            n = len(forward_smear)
+            out[idx:idx+n] = forward_smear
+            is_solved[idx:idx+n] = True
+
+        if idx > 0:
+            backward_smear = _smear_until_change(out[:idx+1], limit, "backward")
+            n = len(backward_smear)
+            out[idx-n+1:idx+1] = backward_smear
+            is_solved[idx-n+1:idx+1] = True
+
+        n_iteration += 1
+        if n_iteration > iteration_limit:
+            raise RuntimeError
+
+    return out
 
 
 def clip_speed(theta, limit, how):
@@ -86,7 +95,8 @@ def clip_speed(theta, limit, how):
     Parameters
     ----------
     theta : pandas.Series
-        The input time series.  Must have datetime index. [degrees]
+        The input time series.  Must have datetime index with constant
+        time step. [degrees]
     limit : float
         Maximum rotation rate. [degrees per minute]
     how : {"lead", "lag", "shallower"}
@@ -98,68 +108,20 @@ def clip_speed(theta, limit, how):
         The time series, subject to the specified rotation limit.
         [degrees]
     """
-    if how not in ['lag', 'lead', 'shallower']:
-        raise ValueError(f'Invalid "how": "{how}"')
+    # degrees per minute * minutes per step = degrees per step
+    dt = theta.index[1] - theta.index[0]
+    limit = limit * (dt / pd.Timedelta('1min'))
 
     if how == "lag":
-        return _smear(theta, limit)
-    if how == "lead":
-        return _reverse(_smear(_reverse(theta), limit))
+        out = _forward_smear(theta.values, limit)
+    elif how == "lead":
+        out = _forward_smear(theta.values[::-1], limit)[::-1]
+    elif how == "shallower":
+        out = _successive_minima(theta.values, limit, iteration_limit=1000)
+    else:
+        raise ValueError(f'Invalid "how": "{how}"')
 
-    # - positive value, positive slope: lag
-    # - positive value, negative slope: lead
-    # - negative value, positive slope: lead
-    # - negative value, negative slope: lag
-
-    window_boundaries = _find_windows((theta * theta.diff()).values[1:])
-    out = theta.copy()
-    for start, end, sign in window_boundaries:
-        start = start - 1 if start > 0 else start
-        end = end + 1 if end < len(out) else end
-        print(start, end, sign)
-        subset = out.iloc[start:end]
-        if sign > 0:
-            smeared = _smear(subset, limit)
-            # did the smearing "catch up" by the end of the window?
-            caught_up = abs(smeared.iloc[-1] - out.iloc[end-1]) < 1e-10
-            if not caught_up:
-                print("   did not catch up.  smear:", smeared.iloc[-1], "out:", out.iloc[end-1])
-            out.iloc[start:end] = smeared
-            if not caught_up:
-                print("   starting from:", end-1, out.iloc[end-1])
-                # need to extend and continue smearing beyond the end
-                # TODO smearing the full array is quite wasteful.
-                # create some kind of "smear until equal" alternative.
-                smeared = _smear(out.iloc[end-1:], limit)
-                # find where it finally does catch up (first equal index, OR sign change)
-                approx_equal = np.abs(smeared.iloc[1:] - out.iloc[end:]) < 1e-6
-                sign_diff = np.sign(out.iloc[end:] - smeared.iloc[1:])
-                sign_changed = sign_diff != sign_diff.shift(1)
-                sign_changed.iloc[0] = False  # first element is nan
-                new_end = np.argmax(approx_equal | sign_changed)
-                print("   final smear:", end, end+new_end)
-                out.iloc[end:end+new_end] = smeared.iloc[:new_end]
-
-        elif sign < 0:
-            smeared = _reverse(_smear(_reverse(subset), limit))
-            # did the smearing "catch up" by the end (start) of the window?
-            caught_up = abs(smeared.iloc[0] - out.iloc[start]) < 1e-10
-            if not caught_up:
-                print("   did not catch up.  smear:", smeared.iloc[-1], "out:", out.iloc[end-1])
-            #import pdb; pdb.set_trace()
-            out.iloc[start:end] = smeared
-            if not caught_up:
-                print("   starting from:", start, out.iloc[start])
-                # need to extend and continue smearing beyond the end (start)
-                # TODO smearing the full array is quite wasteful.
-                # create some kind of "smear until equal" alternative.
-                smeared = _reverse(_smear(_reverse(out.iloc[:start+1]), limit))
-                # find where it finally does catch up (last equal index)
-                new_start = np.argmax(np.abs((smeared.iloc[:-1] - out.iloc[:start]).iloc[::-1]) < 1e-6)
-                print("   final smear:", start-new_start, start)
-                out.iloc[start-new_start:start] = smeared.iloc[-new_start-1:-1]
-
-    return out
+    return pd.Series(out, index=theta.index)
 
 
 def clip_position(theta, limit):
