@@ -50,3 +50,4 @@ theta.plot(c='k', label='baseline')
 smeared = satlib.limits.clip_speed(theta, 5, how="shallower")
 smeared.plot(label=how)
 plt.legend()
+

@@ -70,7 +70,7 @@ def test_clip_speed_discrete(discretized, how):
 
 def test_clip_speed_shallower():
     # shallower is more complicated than lead/lag;
-    # test a tracker curve that hits speed limits in all four quadrants of
+    # test several tracker curves that hit speed limits in all four quadrants of
     # the (tracker angle, tracker velocity) plane.
     n = 500
     theta = pd.Series(25 * np.sin(np.linspace(0, 4*np.pi, n)), index=pd.date_range("2020-06-01 12:00", freq="6s", periods=n))
@@ -78,9 +78,25 @@ def test_clip_speed_shallower():
     limit = 5
 
     clipped = satlib.limits.clip_speed(theta, limit=limit, how="shallower")
-    assert (clipped.abs() <= theta.abs() + 1e-6).all()
+    assert (clipped.abs() <= theta.abs() + 1e-6).all()  # achieves "shallower" goal
     speed = clipped.diff() / (clipped.index.diff() / pd.Timedelta("1min"))
-    assert speed.abs().max() <= (limit + 1e-6)
+    assert speed.abs().max() <= (limit + 1e-6)  # achieves speed limit goal
+
+
+def test_clip_speed_shallower_discontintuity():
+    # handling discontinuities is difficult
+
+    times = pd.date_range("2020-06-01 08:00", "2020-06-01 16:00", freq="1min")
+    psza = np.linspace(-90, 90, len(times))
+    bt = satlib.backtracking.backtrack_psbt(psza, gcr=0.4, allowed_shade_fractions=[0.0, 0.5])
+    theta = np.where(np.isnan(bt), psza, bt)
+    theta = pd.Series(theta, index=times)
+
+    limit = 1
+    clipped = satlib.limits.clip_speed(theta, 1, how="shallower")
+    assert (clipped.abs() <= theta.abs() + 1e-6).all()  # achieves "shallower" goal
+    speed = clipped.diff() / (clipped.index.diff() / pd.Timedelta("1min"))
+    assert speed.abs().max() <= (limit + 1e-6)  # achieves speed limit goal
 
 
 def test_clip_speed_nans():

@@ -116,37 +116,51 @@ def clip_speed(theta, limit, how):
     for start, end, sign in window_boundaries:
         start = start - 1 if start > 0 else start
         end = end + 1 if end < len(out) else end
+        print(start, end, sign)
         subset = out.iloc[start:end]
         if sign > 0:
             smeared = _smear(subset, limit)
             # did the smearing "catch up" by the end of the window?
             caught_up = abs(smeared.iloc[-1] - out.iloc[end-1]) < 1e-10
+            if not caught_up:
+                print("   did not catch up.  smear:", smeared.iloc[-1], "out:", out.iloc[end-1])
             out.iloc[start:end] = smeared
             if not caught_up:
+                print("   starting from:", end-1, out.iloc[end-1])
                 # need to extend and continue smearing beyond the end
                 # TODO smearing the full array is quite wasteful.
                 # create some kind of "smear until equal" alternative.
                 smeared = _smear(out.iloc[end-1:], limit)
-                # find where it finally does catch up (first equal index)
-                new_end = np.argmax(smeared.iloc[1:] == out.iloc[end:])
+                # find where it finally does catch up (first equal index, OR sign change)
+                approx_equal = np.abs(smeared.iloc[1:] - out.iloc[end:]) < 1e-6
+                sign_diff = np.sign(out.iloc[end:] - smeared.iloc[1:])
+                sign_changed = sign_diff != sign_diff.shift(1)
+                sign_changed.iloc[0] = False  # first element is nan
+                new_end = np.argmax(approx_equal | sign_changed)
+                print("   final smear:", end, end+new_end)
                 out.iloc[end:end+new_end] = smeared.iloc[:new_end]
 
         elif sign < 0:
             smeared = _reverse(_smear(_reverse(subset), limit))
             # did the smearing "catch up" by the end (start) of the window?
             caught_up = abs(smeared.iloc[0] - out.iloc[start]) < 1e-10
+            if not caught_up:
+                print("   did not catch up.  smear:", smeared.iloc[-1], "out:", out.iloc[end-1])
             #import pdb; pdb.set_trace()
             out.iloc[start:end] = smeared
             if not caught_up:
+                print("   starting from:", start, out.iloc[start])
                 # need to extend and continue smearing beyond the end (start)
                 # TODO smearing the full array is quite wasteful.
                 # create some kind of "smear until equal" alternative.
                 smeared = _reverse(_smear(_reverse(out.iloc[:start+1]), limit))
                 # find where it finally does catch up (last equal index)
-                new_start = np.argmax((smeared.iloc[:-1] == out.iloc[:start]).iloc[::-1])
+                new_start = np.argmax(np.abs((smeared.iloc[:-1] - out.iloc[:start]).iloc[::-1]) < 1e-6)
+                print("   final smear:", start-new_start, start)
                 out.iloc[start-new_start:start] = smeared.iloc[-new_start-1:-1]
 
     return out
+
 
 def clip_position(theta, limit):
     """
