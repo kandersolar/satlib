@@ -49,22 +49,11 @@ plt.legend()
 
 # %%
 
-n = 500
-theta = pd.Series(25 * np.sin(np.linspace(0, 4*np.pi, n)), index=pd.date_range("2020-06-01 12:00", freq="6s", periods=n))
-theta = np.clip(theta, -20, 20)
-limit = 5
-
-theta.plot(c='k', label='baseline')
-smeared = satlib.limits.clip_speed(theta, 5, how="shallower")
-smeared.plot(label="shallower")
-plt.legend()
-
-# %%
-
 bt = satlib.backtracking.backtrack_psbt(tt, gcr=0.4, allowed_shade_fractions=[0.0, 0.5])
 
 theta = np.where(np.isnan(bt), tt, bt)
 theta = pd.Series(theta, index=sp.index)
+theta = satlib.discretization.discretize_angle(theta, interval=5)
 
 theta.plot(c='k', label='baseline')
 smeared = satlib.limits.clip_speed(theta, 1, how="shallower")

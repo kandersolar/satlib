@@ -69,18 +69,14 @@ def _verify_shallower_requirements(clipped, theta, limit, match=None):
         assert np.mean(np.isclose(clipped, theta)) > match  # at least some match
 
 
-@pytest.mark.parametrize("how", ["lead", "lag"])
+@pytest.mark.parametrize("how", ["lead", "lag", "shallower"])
 def test_clip_speed_discrete(discretized, how):
     limit = 1
     clipped = satlib.limits.clip_speed(discretized, limit=limit, how=how)
     speed = clipped.diff()  # index is 1-min, so this is deg/min
     assert speed.abs().max() <= limit
-
-
-def test_clip_speed_discrete_shallower(discretized):
-    limit = 1
-    clipped = satlib.limits.clip_speed(discretized, limit=limit, how="shallower")
-    _verify_shallower_requirements(clipped, discretized, limit, match=0.9)
+    if how == "shallower":
+        _verify_shallower_requirements(clipped, discretized, limit, match=0.9)
 
 
 def test_clip_speed_shallower():
