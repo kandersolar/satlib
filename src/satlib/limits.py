@@ -79,7 +79,7 @@ def _successive_minima(theta, limit, iteration_limit):
     return out
 
 
-def clip_speed(theta, limit, how):
+def clip_speed(theta, limit, how="shallower"):
     """
     Apply rotation speed limits to a tracker position time
     series.
@@ -89,7 +89,7 @@ def clip_speed(theta, limit, how):
 
     * "lead": leads the input time series
     * "lag": lags the input time series
-    * "shallower": leads and lags such that it is at shallower
+    * "shallower": leads and lags such that the output is shallower
       tilt than the input
 
     Parameters
@@ -99,7 +99,7 @@ def clip_speed(theta, limit, how):
         time step. [degrees]
     limit : float
         Maximum rotation rate. [degrees per minute]
-    how : {"lead", "lag", "shallower"}
+    how : {"shallower", "lead", "lag"}, default "shallower"
         Which method to apply.
 
     Returns
