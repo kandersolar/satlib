@@ -1,13 +1,10 @@
 """
-Optimize tracker angles with a custom irradiance model
-=====================================================
+Optimize tracker angles with the PlantPredict algorithm
+======================================================
 
-The optimizer coordinates angle selection and tracker movement. The caller
-supplies the irradiance calculation, so the same search can use incident
-irradiance or a model including shading and other optical losses.
-
-This example uses pvlib's isotropic sky model for a horizontal north-south
-tracker. Weather is prepared once and stays fixed while comparing angles.
+The optimizer calculates front irradiance internally using Perez–Driesse
+transposition, row shading, and physical incidence angle losses. Supply solar
+position, weather, and row geometry for a horizontal north-south tracker.
 """
 
 import matplotlib.pyplot as plt
@@ -36,23 +33,11 @@ reference = pvlib.tracking.singleaxis(
 )["tracker_theta"].to_numpy()
 
 
-def score_irradiance(theta, index):
-    orientation = pvlib.tracking.calc_surface_orientation(
-        theta, axis_tilt=0, axis_azimuth=180,
-    )
-    position = sun.iloc[index]
-    irradiance = weather.iloc[index]
-    components = pvlib.irradiance.get_total_irradiance(
-        orientation["surface_tilt"], orientation["surface_azimuth"],
-        position["apparent_zenith"], position["azimuth"],
-        irradiance["dni"], irradiance["ghi"], irradiance["dhi"],
-        albedo=0.2, model="isotropic",
-    )
-    return np.asarray(components["poa_global"]).item()
 
-
-result = satlib.plantpredict_diffuse_optimization.optimize_irradiance(
-    reference, weather["ghi"].to_numpy(), score_irradiance,
+result = satlib.plantpredict.optimize_irradiance(
+    reference, sun["apparent_zenith"], sun["azimuth"],
+    weather["dni"], weather["dhi"], weather["ghi"],
+    pvlib.irradiance.get_extra_radiation(times), gcr=0.35,
     rotation_speed=1, sample_duration=300, hesitation_factor=0.2,
 )
 

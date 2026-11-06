@@ -11,7 +11,7 @@ Functions for determining the optimal angle of a tracker.
 
    satlib.tracking.astronomical
    satlib.diffuse_optimization.munoz2024_analytical
-   satlib.plantpredict_diffuse_optimization.optimize_irradiance
+   satlib.plantpredict.optimize_irradiance
 
 
 Backtracking
@@ -63,7 +63,6 @@ Functions for applying limits to tracker position and speed.
 
    satlib.limits.clip_position
    satlib.limits.clip_speed
-   satlib.limits.tracker_movement
 
 
 Geometry
