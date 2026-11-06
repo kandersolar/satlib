@@ -8,6 +8,7 @@ except PackageNotFoundError:
 from satlib import (
     backtracking,
     diffuse_optimization,
+    plantpredict_diffuse_optimization,
     discretization,
     geometry,
     limits,

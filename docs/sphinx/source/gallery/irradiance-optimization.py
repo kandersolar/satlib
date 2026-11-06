@@ -51,7 +51,7 @@ def score_irradiance(theta, index):
     return np.asarray(components["poa_global"]).item()
 
 
-result = satlib.diffuse_optimization.optimize_irradiance(
+result = satlib.plantpredict_diffuse_optimization.optimize_irradiance(
     reference, weather["ghi"].to_numpy(), score_irradiance,
     rotation_speed=1, sample_duration=300, hesitation_factor=0.2,
 )
