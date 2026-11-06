@@ -1,4 +1,5 @@
 import satlib
+import numpy as np
 
 
 def astronomical(solar_zenith, solar_azimuth, axis_tilt, axis_azimuth):
@@ -32,5 +33,7 @@ def astronomical(solar_zenith, solar_azimuth, axis_tilt, axis_azimuth):
        Single-Axis Trackers", Technical Report NREL/TP-5K00-76626, July 2020.
        :doi:`10.2172/1660126`
     """
-    return satlib.geometry.projected_solar_zenith_angle(solar_zenith, solar_azimuth,
+    psza = satlib.geometry.projected_solar_zenith_angle(solar_zenith, solar_azimuth,
                                                         axis_tilt, axis_azimuth)
+    out = np.where(solar_zenith > 90, np.nan, psza)
+    return satlib._util.fixtype(out)

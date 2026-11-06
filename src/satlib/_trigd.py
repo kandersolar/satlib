@@ -12,17 +12,17 @@ def tand(x):
     return np.tan(np.radians(x))
 
 
-def asind(x):
-    return np.degrees(np.asin(x))
+def asind(x, **kwargs):
+    return np.degrees(np.asin(x, **kwargs))
 
 
-def acosd(x):
-    return np.degrees(np.acos(x))
+def acosd(x, **kwargs):
+    return np.degrees(np.acos(x, **kwargs))
 
 
-def atand(x):
-    return np.degrees(np.atan(x))
+def atand(x, **kwargs):
+    return np.degrees(np.atan(x, **kwargs))
 
 
-def atan2d(x, y):
-    return np.degrees(np.arctan2(x, y))
+def atan2d(x, y, **kwargs):
+    return np.degrees(np.arctan2(x, y, **kwargs))

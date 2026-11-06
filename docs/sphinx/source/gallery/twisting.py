@@ -19,7 +19,7 @@ sp = pvlib.solarposition.get_solarposition(times, 45, 0)
 sp = sp.loc[sp["apparent_elevation"] > 0, :]
 
 tt = satlib.tracking.astronomical(sp.apparent_zenith, sp.azimuth, axis_tilt=0, axis_azimuth=180)
-bt = satlib.backtracking.simple.backtrack(tt, gcr=0.4)
+bt = satlib.backtracking.backtrack_standard(tt, gcr=0.4)
 
 theta = np.where(np.isnan(bt), tt, bt)
 theta = pd.Series(theta, index=sp.index)
