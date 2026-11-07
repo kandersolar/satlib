@@ -19,7 +19,7 @@ def _psbt(psza, fs, gcr):
     return psza - np.sign(psza) * acosd(cosd(psza) / ((1-fs)*gcr))
 
 
-def backtrack_psbt(psza, gcr, max_angle, allowed_shade_fractions):
+def backtrack_psbt(psza, gcr, allowed_shade_fractions, max_angle):
     """
     Compute partial-shade backtracking positions.
 
@@ -33,35 +33,45 @@ def backtrack_psbt(psza, gcr, max_angle, allowed_shade_fractions):
     gcr : float
         Ground coverage ratio. [unitless]
 
-    max_angle : float
-        Maximum allowed tracker position. [degrees]
-
     allowed_shade_fractions : list of float
         Allowable shade fractions, as a fraction of total collector bandwidth.
         For example, pass ``[0, 0.5]`` for a 1P array and ``[0, 0.25, 0.5, 0.75]``
-        for a 2P array.  All values must be in the half-open interval [0, 1).
+        for a 2P array.  All elements must be in the half-open interval [0, 1).
         [unitless]
+
+    max_angle : float, optional
+        Maximum allowed tracker position. [degrees]
 
     Returns
     -------
     positions : numeric
         Partial-shade backtracking tracker positions. [degrees]
     """
-    x = np.abs(psza)
+    _psza = np.asarray(psza)
+    x = np.abs(_psza)
     if 0 not in allowed_shade_fractions:
         allowed_shade_fractions = [0] + list(allowed_shade_fractions)
 
     allowed_shade_fractions = np.array(sorted(allowed_shade_fractions))
-    g = _g(allowed_shade_fractions, gcr, max_angle)
+    f0 = _f(0, gcr)
+    if max_angle is None:
+        critical_points = _f(allowed_shade_fractions, gcr)
+    else:
+        critical_points = _g(allowed_shade_fractions, gcr, max_angle)
+        # always use f0 instead of g0 so that segment 3 is included.
+        # (it gets clipped at the end)
+        critical_points[0] = f0
 
-    out = psza.copy()
-    mask = (max_angle < x) & (x < g[0])
-    out[mask] = np.sign(psza[mask]) * max_angle
+    out = np.full(_psza.shape, np.nan)
 
-    for i in range(len(g)):
-        mask = (g[i] < x)
-        if i < len(g)-1:
-            mask &= (x < g[i+1])
-        out[mask] = _psbt(psza[mask], allowed_shade_fractions[i], gcr)
+    for i in range(len(critical_points)):
+        mask = (critical_points[i] < x)
+        if i < len(critical_points)-1:
+            mask &= (x < critical_points[i+1])
+        out[mask] = _psbt(_psza[mask], allowed_shade_fractions[i], gcr)
 
-    return out
+    # clip segment 3
+    if max_angle is not None:
+        mask = (f0 < x) & (x < _g(0, gcr, max_angle))
+        out[mask] = out[mask].clip(-max_angle, max_angle)
+    return satlib._util.fixtype(out)

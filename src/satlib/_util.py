@@ -25,4 +25,9 @@ def fixtype(x):
         return x
     if not np_array:
         return x.item()
+
+    if isinstance(x, np.ndarray) and x.shape == ():
+        # the result of np.where() on a scalar, or similar
+        return float(x)
+
     return x
