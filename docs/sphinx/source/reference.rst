@@ -11,6 +11,7 @@ Functions for determining the optimal angle of a tracker.
 
    satlib.tracking.astronomical
    satlib.diffuse_optimization.munoz2024_analytical
+   satlib.plantpredict.optimize_irradiance
    satlib.diffuse_optimization.kellygibson2009_tracking1
    satlib.diffuse_optimization.kellygibson2009_tracking2
    satlib.diffuse_optimization.kellygibson2009_tracking3
