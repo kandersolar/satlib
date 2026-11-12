@@ -23,10 +23,11 @@ def _check_psbt(psza, psbt, max_angle, gcr, shade_fractions):
     assert np.allclose(sorted(np.unique(np.round(fs, 6))), sorted(shade_fractions))
 
 
-def test_backtracking_psbt(psza):
+@pytest.mark.parametrize("how", ["iterative", "piecewise"])
+def test_backtracking_psbt(psza, how):
 
     # null in midday, close to zero near dawn/dusk, all shade fractions achieved
-    psbt = satlib.backtracking.backtrack_psbt(psza, gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.5])
+    psbt = satlib.backtracking.backtrack_psbt(psza, gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.5], how=how)
 
     _check_psbt(psza, psbt, 45, 0.5, [0, 0.5])
 
@@ -40,42 +41,45 @@ def test_backtracking_psbt(psza):
     assert np.isnan(psbt.iloc[n])
 
 
-def test_backtracking_psbt_shaded_fractions(psza):
+@pytest.mark.parametrize("how", ["iterative", "piecewise"])
+def test_backtracking_psbt_shaded_fractions(psza, how):
 
-    psbt = satlib.backtracking.backtrack_psbt(psza, gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.25, 0.5, 0.75])
+    psbt = satlib.backtracking.backtrack_psbt(psza, gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.25, 0.5, 0.75], how=how)
     _check_psbt(psza, psbt, 45, 0.5, [0, 0.25, 0.5, 0.75])
 
-    psbt = satlib.backtracking.backtrack_psbt(psza, gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.33, 0.66])
+    psbt = satlib.backtracking.backtrack_psbt(psza, gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.33, 0.66], how=how)
     _check_psbt(psza, psbt, 45, 0.5, [0, 0.33, 0.66])
 
     # special case:
-    psbt = satlib.backtracking.backtrack_psbt(psza, gcr=0.5, max_angle=45, allowed_shade_fractions=[0])
+    psbt = satlib.backtracking.backtrack_psbt(psza, gcr=0.5, max_angle=45, allowed_shade_fractions=[0], how=how)
     bt = satlib.backtracking.backtrack_standard(psza, gcr=0.5).clip(-45, 45)
     mask = ~np.isnan(bt)
     assert np.allclose(psbt[mask], bt[mask])
 
 
-def test_backtracking_psbt_types():
+@pytest.mark.parametrize("how", ["iterative", "piecewise"])
+def test_backtracking_psbt_types(how):
 
     expected = 15.403112980738285
 
-    psbt = satlib.backtracking.backtrack_psbt(85, gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.5])
+    psbt = satlib.backtracking.backtrack_psbt(85, gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.5], how=how)
     assert np.isclose(psbt, expected)
     assert isinstance(psbt, float)
 
-    psbt = satlib.backtracking.backtrack_psbt(np.array([85]), gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.5])
+    psbt = satlib.backtracking.backtrack_psbt(np.array([85]), gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.5], how=how)
     assert np.allclose(psbt, expected)
     assert isinstance(psbt, np.ndarray)
 
-    psbt = satlib.backtracking.backtrack_psbt(pd.Series([85]), gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.5])
+    psbt = satlib.backtracking.backtrack_psbt(pd.Series([85]), gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.5], how=how)
     assert np.allclose(psbt.values, expected)
     assert isinstance(psbt, pd.Series)
 
 
-def test_backtracking_psbt_unconstrained(psza):
+@pytest.mark.parametrize("how", ["iterative", "piecewise"])
+def test_backtracking_psbt_unconstrained(psza, how):
     gcr = 0.5
-    psbt1 = satlib.backtracking.backtrack_psbt(psza, gcr=gcr, max_angle=45, allowed_shade_fractions=[0, 0.5])
-    psbt2 = satlib.backtracking.backtrack_psbt(psza, gcr=gcr, max_angle=None, allowed_shade_fractions=[0, 0.5])
+    psbt1 = satlib.backtracking.backtrack_psbt(psza, gcr=gcr, max_angle=45, allowed_shade_fractions=[0, 0.5], how=how)
+    psbt2 = satlib.backtracking.backtrack_psbt(psza, gcr=gcr, max_angle=None, allowed_shade_fractions=[0, 0.5], how=how)
 
     fs1 = satlib.geometry.shaded_fraction(psza, psbt1, collector_width=gcr, pitch=1)
     fs2 = satlib.geometry.shaded_fraction(psza, psbt2, collector_width=gcr, pitch=1)
