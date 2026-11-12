@@ -86,3 +86,9 @@ def test_backtracking_psbt_unconstrained(psza, how):
 
     # unconstrained means it can spend more time at the greater shaded fraction
     assert np.sum(np.isclose(fs1, 0.5)) < np.sum(np.isclose(fs2, 0.5))
+
+
+def test_backtracking_psbt_invalid_how():
+    with pytest.raises(ValueError, match="invalid 'how': not_a_method"):
+        _ = satlib.backtracking.backtrack_psbt(10, gcr=0.5, max_angle=45, allowed_shade_fractions=[0, 0.5],
+                                               how="not_a_method")

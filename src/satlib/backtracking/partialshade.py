@@ -101,6 +101,6 @@ def backtrack_psbt(psza, gcr, allowed_shade_fractions, max_angle,
     elif how == "piecewise":
         out = _piecewise(psza, gcr, allowed_shade_fractions, max_angle)
     else:
-        raise ValueError("invalid 'how': {how}")
+        raise ValueError(f"invalid 'how': {how}")
 
     return satlib._util.fixtype(out)
