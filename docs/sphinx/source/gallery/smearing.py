@@ -49,7 +49,7 @@ plt.legend()
 
 # %%
 
-bt = satlib.backtracking.backtrack_psbt(tt, gcr=0.4, allowed_shade_fractions=[0.0, 0.5])
+bt = satlib.backtracking.backtrack_psbt(tt, gcr=0.4, allowed_shade_fractions=[0.0, 0.5], max_angle=None)
 
 theta = np.where(np.isnan(bt), tt, bt)
 theta = pd.Series(theta, index=sp.index)

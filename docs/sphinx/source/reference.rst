@@ -28,7 +28,6 @@ Functions for avoiding and managing row-to-row shade.
 
    satlib.backtracking.backtrack_standard
    satlib.backtracking.backtrack_psbt
-   satlib.backtracking.backtrack_psbt_effective_gcr
    satlib.backtracking.backtrack_lp2d
 
 

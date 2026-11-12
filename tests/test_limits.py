@@ -96,7 +96,7 @@ def test_clip_speed_shallower():
 def psbt():
     times = pd.date_range("2020-06-01 08:00", "2020-06-01 16:00", freq="1min")
     psza = np.linspace(-90, 90, len(times))
-    bt = satlib.backtracking.backtrack_psbt(psza, gcr=0.4, allowed_shade_fractions=[0.0, 0.5])
+    bt = satlib.backtracking.backtrack_psbt(psza, gcr=0.4, max_angle=90, allowed_shade_fractions=[0.0, 0.5])
     theta = np.where(np.isnan(bt), psza, bt)
     return pd.Series(theta, index=times)
 
