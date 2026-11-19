@@ -34,7 +34,7 @@ reference = pvlib.tracking.singleaxis(
 
 
 
-result = satlib.plantpredict.optimize_irradiance(
+result = satlib.proximal.optimize_irradiance(
     reference, sun["apparent_zenith"], sun["azimuth"],
     weather["dni"], weather["dhi"], weather["ghi"],
     pvlib.irradiance.get_extra_radiation(times), gcr=0.35,

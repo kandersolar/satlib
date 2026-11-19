@@ -8,10 +8,10 @@ except PackageNotFoundError:
 from satlib import (
     backtracking,
     diffuse_optimization,
-    plantpredict,
     discretization,
     geometry,
     limits,
+    proximal,
     tracking,
     twist,
     _trigd,
