@@ -38,6 +38,7 @@ result = satlib.plantpredict.optimize_irradiance(
     reference, sun["apparent_zenith"], sun["azimuth"],
     weather["dni"], weather["dhi"], weather["ghi"],
     pvlib.irradiance.get_extra_radiation(times), gcr=0.35,
+    pitch=6, pile_height=1.5,
     rotation_speed=1, sample_duration=300, hesitation_factor=0.2,
 )
 

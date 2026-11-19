@@ -9,7 +9,8 @@ from .search import search_irradiance_angle
 
 
 def optimize_irradiance(tracker_theta, solar_zenith, solar_azimuth, dni, dhi,
-                        ghi, dni_extra, *, gcr, axis_azimuth=180, albedo=0.2,
+                        ghi, dni_extra, *, gcr, pitch, pile_height,
+                        axis_azimuth=180, albedo=0.2,
                         circumsolar="diffuse", soiling=1.0,
                         rotation_speed=None, sample_duration=300,
                         hesitation_factor=0.2, initial_theta=None):
@@ -19,8 +20,11 @@ def optimize_irradiance(tracker_theta, solar_zenith, solar_azimuth, dni, dhi,
     each baseline angle and horizontal, then compare the reachable optimized
     and baseline paths using the same irradiance model and weather inputs.
     The built-in model uses Perez–Driesse sky diffuse transposition, direct
-    row shading, Passias sky shading, and physical direct and diffuse incidence
-    angle modifiers with uncoated glass (n=1.526, K=4, L=0.0032 m).
+    row shading, full-row average sky view factors, and physical direct and
+    diffuse incidence angle modifiers with uncoated glass
+    (n=1.526, K=4, L=0.0032 m). Sky transmission is normalized to the unobstructed
+    tilted panel; its reuse for horizon and diffuse circumsolar irradiance is
+    an approximation.
     Relative airmass is calculated using the Kasten–Young 1989 model.
 
     Parameters
@@ -39,6 +43,12 @@ def optimize_irradiance(tracker_theta, solar_zenith, solar_azimuth, dni, dhi,
     gcr : float
         Collector width divided by row pitch, greater than zero and at most
         one. Rows have equal rotations on flat terrain.
+    pitch : float
+        Distance between adjacent tracker axes. [m]
+    pile_height : float
+        Tracker axis height above horizontal ground. [m]
+        Ground reflection uses the infinite-sheds model with this height,
+        pitch, and GCR, matching PV-EEM's front-only optimization scorer.
     axis_azimuth : float, default 180
         Azimuth of the horizontal tracker axis, clockwise from north. [degrees]
     albedo : float, default 0.2
@@ -104,6 +114,8 @@ def optimize_irradiance(tracker_theta, solar_zenith, solar_azimuth, dni, dhi,
             "dni_extra": dni_extra[index],
             "airmass": airmass[index],
             "gcr": gcr,
+            "pitch": pitch,
+            "pile_height": pile_height,
             "axis_azimuth": axis_azimuth,
             "albedo": albedo,
             "circumsolar": circumsolar,
