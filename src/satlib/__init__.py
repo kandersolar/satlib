@@ -7,7 +7,7 @@ except PackageNotFoundError:
 
 from satlib import (
     backtracking,
-    diffuse_optimization,
+    diffusetracking,
     discretization,
     geometry,
     limits,
