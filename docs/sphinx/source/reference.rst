@@ -10,12 +10,21 @@ Functions for determining the optimal angle of a tracker.
    :toctree: reference
 
    satlib.tracking.astronomical
-   satlib.diffuse_optimization.munoz2024_analytical
-   satlib.diffuse_optimization.kellygibson2009_tracking1
-   satlib.diffuse_optimization.kellygibson2009_tracking2
-   satlib.diffuse_optimization.kellygibson2009_tracking3
-   satlib.diffuse_optimization.munoz2024_diffuse
-   satlib.diffuse_optimization.munoz2024_diffusetrackerangle
+
+Diffuse Tracking
+----------------
+
+Functions for optimizing tracker angle in cloudy conditions.
+
+.. autosummary::
+   :toctree: reference
+
+   satlib.diffusetracking.munoz2024_analytical
+   satlib.diffusetracking.munoz2024_diffuse
+   satlib.diffusetracking.munoz2024_diffusetrackerangle
+   satlib.diffusetracking.kellygibson2009_tracking1
+   satlib.diffusetracking.kellygibson2009_tracking2
+   satlib.diffusetracking.kellygibson2009_tracking3
 
 
 Backtracking
