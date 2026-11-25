@@ -43,6 +43,17 @@ Functions for modeling discontinuous tracker movement.
    satlib.discretization.discretize_angle
 
 
+Stow
+----
+
+Functions for modeling stow.
+
+.. autosummary::
+   :toctree: reference
+
+   satlib.stow.night_stow
+
+
 Twisting
 --------
 
