@@ -26,6 +26,22 @@ def inputs():
     )
 
 
+def test_haydavies_analytical_irradiance(inputs):
+    # test that this method gets higher irradiance relative to astronomical tracking
+    axis_azimuth = inputs.pop("axis_azimuth")
+    psza = satlib.geometry.projected_solar_zenith_angle(inputs['solar_zenith'], inputs['solar_azimuth'],
+                                                        axis_tilt=0, axis_azimuth=axis_azimuth)
+    orient = satlib.geometry.surface_orientation(psza, axis_tilt=0, axis_azimuth=axis_azimuth)
+    g_astronomical = pvlib.irradiance.get_total_irradiance(**orient, **inputs, model="haydavies")['poa_global']
+
+    theta = satlib.diffusetracking.haydavies_analytical(**inputs, axis_azimuth=axis_azimuth)
+    orient = satlib.geometry.surface_orientation(theta, axis_tilt=0, axis_azimuth=axis_azimuth)
+    g_analytical = pvlib.irradiance.get_total_irradiance(**orient, **inputs, model="haydavies")['poa_global']
+
+    # nan for nighttime
+    assert np.all((g_analytical > g_astronomical) | np.isnan(g_analytical))
+
+
 def _bruteforce(ghi, dni, dhi, solar_zenith, solar_azimuth, albedo, dni_extra, axis_azimuth):
     opt = 0 * ghi
     theta = np.linspace(-90, +90, 2000)  # 0.09 degree precision
