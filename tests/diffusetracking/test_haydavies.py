@@ -64,6 +64,8 @@ def test_haydavies_analytical_bruteforce(inputs):
     # check that all nan values are when sun is below horizon
     zenith = inputs['solar_zenith']
     assert np.all(zenith[np.isnan(actual)] > 90)
+    # and none are nan when sun is above horizon
+    assert not np.any(zenith[np.isnan(actual)] < 90)
 
 
 def test_haydavies_analytical_types(inputs):
