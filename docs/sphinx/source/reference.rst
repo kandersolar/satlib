@@ -25,6 +25,7 @@ Functions for optimizing tracker angle in cloudy conditions.
    satlib.diffusetracking.kellygibson2009_tracking1
    satlib.diffusetracking.kellygibson2009_tracking2
    satlib.diffusetracking.kellygibson2009_tracking3
+   satlib.diffusetracking.haydavies_analytical
 
 
 Backtracking
