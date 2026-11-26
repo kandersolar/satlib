@@ -8,3 +8,6 @@ from satlib.diffusetracking.kellygibson import (
     kellygibson2009_tracking2,
     kellygibson2009_tracking3,
 )
+from satlib.diffusetracking.haydavies import (
+    haydavies_analytical,
+)
